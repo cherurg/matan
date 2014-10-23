@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="../scripts/processingTaylor.js"></script>
+		<script type="text/javascript" src="../scripts/parametersTaylor.js"></script>
+		<script type="text/javascript" src="../scripts/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="../stylesheets/rimanStyle.css">
+		<link rel="stylesheet" type="text/css" href="../stylesheets/jsxgraph.css">
+	</head>
+	
+	<body>
+	<table cellpadding="7">
+	<tr>
+	<td>
+		<ul id="list-nav">
+			<li><a href="#" onclick="showGraph();">Graph</a></li>
+			<li><a href="#" onclick="showErrorOfGraph();">Error</a></li>
+		</ul>
+		<form id="myform">
+			<select id="mymenu" onchange = "var a = document.forms[0].mymenu.options[document.forms[0].mymenu.selectedIndex].value;
+											clearGraph();
+											create(a);
+											f1.oninput();"/>
+											
+				<option value="0" selected>(1 + x + x^2)/(1 - x + x^2)</option>
+				<option value="1">x/(x^2 + x + 1)</option>
+				<option value="2">(5*x^2)/(x^2 + 2*x + 3)</option>
+				<option value="3">(2*x^3 - 4*x^2 + x + 1)/(x^2 + 3*x + 1)</option>
+			</select>
+		</form>
+	</td>
+	<td>
+		<form name="f1" oninput="result.value = parseInt(a.value); s.setGliderPosition(result.value/10); showRadius();"">
+			Summands:<br>
+			<input type="range" name="a" min="0" max="10" value="0"/>
+			<output name="result">0</output>
+		</form>
+	</td>
+	<td>
+		<div id="rad">Radius: 0</div>
+	</td>
+	</tr>
+	</table>
+		<div id='jxgbox' class='jxgbox' style="position: absolute; z-index: 1; width: 98%; height: 80%"></div>
+		
+		<script type="text/javascript"> 
+		
+			init();
+			create(0);
+		</script>
+	</body>
+</html>

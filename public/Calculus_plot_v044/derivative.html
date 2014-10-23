@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Directional derivative</title>
+	<style>
+		body {
+			background-color: navy;
+			color: white
+		}
+		select {
+			width: auto;
+			display: inline-block;
+			border: none;
+		}
+		input {
+			width: 40pt;
+			height: 30px;
+			display: inline-block;
+			border: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="plot_area" width="800" height="800" style="float: left"></div>
+	<div style="float: left">
+		<div id="options"></div>
+		<div id="output"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/LAB.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			var example;
+			var fLib = DemoFunctions.explicit;
+			
+			var UI = new MathUI(document.getElementById('options'))
+				.push('select', {pre: 'f(x, y) = ', id: 'f', options: getNames(fLib), action: plotSurf, br: true})
+				.push('vector', {pre: 'p = ', id: 'pt', dims: 2, action: updateSection, br: true})
+				.push('number', {pre: 'By direction: ', id: 'dir', integer: true, action: updateSection, post: ' deg. with the x-axis.', br: true})
+				.push('label', {pre: 'f_e\'(p) = ', id: 'output', text: ''});
+			
+			var sectionPlotter = new Plotter3d(document.getElementById('plot_area'));
+			var numPoints = sectionPlotter.useWebGL? 41: 17;			
+			plotSurf();
+			
+			function plotSurf() {
+				example = fLib[UI.f.value];
+								
+				var grid = rectGrid({dist: example.range, len: numPoints});
+				sectionPlotter.plot3d(apply(grid, example.f), {ID: 'surf', axisLen: example.range, col: 0xFFFFFF});
+				
+				updateSection();
+			}
+			
+			function updateSection() {
+				var p0 = UI.pt.value, directionAng = UI.dir.value / 180 * Math.PI;
+				
+				var gradf = grad(example.f, p0),
+					tangentFunc = function(p) {
+						return [p[0], p[1], example.f(p0)[2] + (p[0] - p0[0]) * gradf[0] + (p[1] - p0[1]) * gradf[1]];
+					};
+				
+				UI.output.text = dDir(example.f, p0, directionAng);
+				
+				var dirPts = make.line(example.range, p0, directionAng);
+				sectionPlotter.plot3d(zInvariant(dirPts, example.zSpan), {type: 's', col: 'grey', alpha: .4, ID: 'plane'});
+				sectionPlotter.plot3d(apply(dirPts, example.f), {type: '-', overlay: true, col: 'borange', ID: 'inter'});
+				sectionPlotter.plot3d(example.f(p0), {type: 'p', overlay: true, col: 'borange', radius: .15, ID: 'pt'});
+				sectionPlotter.plot3d(apply(dirPts, tangentFunc), {col: 'red', ID: 'tangent'});
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>

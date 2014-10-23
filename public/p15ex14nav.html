@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>15.14</title>
+<!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<meta name = "keywords" content = "">
+<meta name = "description" content = "">
+<meta charset = "utf-8">
+<link rel = "stylesheet" href = "stylesheets/style.css">
+<script src = "scripts/mousetrap.min.js"></script>
+ 
+<script type = "text/javascript">
+var func_num = 1;
+var t_anim;
+var part = 0;
+
+var stop_checker = false;
+var was_stopped = false;
+var animation_started = 0;
+
+var width_global = 700;
+var height_global = 700;
+
+// границы изменения параметра t
+var t_left, t_right;
+
+function makeAnimation(form) {
+  animation_started++;
+  if (animation_started == 1) {
+	var timer = setInterval(drawAnimation, 10);
+  }
+  if (!was_stopped) {
+		t_anim = startParameter();
+	}
+	was_stopped = false;
+
+function drawAnimation() {
+	t_increment = 0.008;
+	if (func_num == 3) {
+		t_increment = 0.05;
+	} 
+	if (func_num == 2) {
+		t_increment = 0.01;
+	}
+	if (func_num == 4) {
+		t_increment = 0.015;
+	}
+	t_anim = t_anim + t_increment;
+	redrawCanvas();	
+    if (stop_checker == true) {
+      clearInterval(timer);
+    }
+}
+  }
+ 
+function startParameter() {
+	if (func_num == 1) {
+		return -width_global/48000;
+	} else if (func_num == 2) {
+		return 0;
+	} else if (func_num == 3) {
+		return -width_global/640;
+	} else if (func_num == 4) {
+		return -width_global/192;
+	} else if (func_num == 5) {
+		return -width_global/320;
+	}
+}
+
+function controlAnimation(form) {
+	if (stop_checker == false) { // если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { // если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation(form);
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+}
+
+Mousetrap.bind('space', function() { 
+	if (stop_checker == false) { // если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { // если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation();
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+ }, 'keydown');
+
+function redrawCanvas() {
+	if (document.getElementById('func1').checked)  {
+		func_old = func_num;
+		func_num = 1;
+		if (func_num != func_old) {
+			t_anim = startParameter();
+		}
+		draw();
+	} else if (document.getElementById('func2').checked) {
+		func_old = func_num;
+		func_num = 2;
+		if (func_num != func_old) {
+			t_anim = startParameter();
+		}
+		draw();
+	} else if (document.getElementById('func3').checked) {
+		func_old = func_num;
+		func_num = 3;
+		if (func_num != func_old) {
+			t_anim = startParameter();
+		}
+		draw();
+	}
+	else if (document.getElementById('func4').checked) {
+		func_old = func_num;
+		func_num = 4;
+		if (func_num != func_old) {
+			t_anim = startParameter();
+		}
+		draw();
+	} else if (document.getElementById('func5').checked) {
+		func_old = func_num;
+		func_num = 5;
+		if (func_num != func_old) {
+			t_anim = startParameter();
+		}
+		draw();
+	}
+}
+
+function evalX(t) {
+	if (func_num == 1) {
+		return (Math.log(Math.tan(t/2)) + Math.cos(t));
+	} else if (func_num == 2) {
+		return Math.pow(Math.cos(t), 3);
+	} else if (func_num == 3) {
+		return (Math.exp(t) + Math.exp(-t))/2;
+	} else if (func_num == 4) {
+		return (Math.cos(t) + t*Math.sin(t));
+	} else if (func_num == 5) {
+		return (t - Math.sin(t));
+	}
+}
+
+function evalY(t) {
+	if (func_num == 1) {
+		return Math.sin(t);
+	} else if (func_num == 2) {
+		return Math.pow(Math.sin(t), 3);
+	} else if (func_num == 3) {
+		return (Math.exp(t) - Math.exp(-t))/2;
+	} else if (func_num == 4) {
+		return (Math.sin(t) - t*Math.cos(t));
+	} else if (func_num == 5) {
+		return (1 - Math.cos(t));
+	}
+}
+
+// функции работы с расстояниями, углами и точками
+function vectLength(x1, y1, x2, y2) {
+	return Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+}
+
+function vectAngle(x1, y1, x2, y2) {
+	return (x1*x2 + y1*y2)/(vectLength(x1, y1, x2, y2));
+}
+
+function intersectPoints(a1, b1, c1, a2, b2, c2) {
+
+var x_intersect, y_intersect;
+x_intersect = -(c1*b2 - c2*b1)/(a1*b2 - a2*b1);
+y_intersect = -(a1*c2 - a2*c1)/(a1*b2 - a2*b1);
+
+return [x_intersect, y_intersect];
+}
+
+function distLinePoint(a, b, c, mx, my) {
+	return (Math.abs(a*mx + b*my + c))/(Math.sqrt(a*a + b*b));
+}
+
+function draw() {
+
+var canvas = document.getElementById("canvas");
+var axes = {};
+var context = canvas.getContext("2d");
+ 
+	// задаём размеры холста
+context.canvas.width  = window.innerWidth*0.5;
+context.canvas.height = window.innerHeight*0.8;
+
+width_global = context.canvas.width;
+height_global = context.canvas.height;
+ 
+	// если браузер не поддерживает пунктирные линии
+if (!context.setLineDash) {
+	context.setLineDash = function () {}
+}
+ 
+	// очищение холста от предыдущих графиков
+context.clearRect(0, 0, canvas.width, canvas.height);
+ 
+axes.x0 = 0.5*canvas.width;
+axes.y0 = 0.5*canvas.height;
+
+if (func_num == 1) {
+	axes.scale = 200*(width_global/1000);
+} else if (func_num == 2) {
+	axes.scale = 200;
+} else if (func_num == 3) {
+	axes.scale = 80*(width_global/2000);
+} else if (func_num == 4) {
+	axes.scale = 70*(width_global/1500);
+} else if (func_num == 5) {
+	axes.scale = 70*(width_global/1000);
+}
+
+axes.doNegativeX = true;
+ 
+drawGraph(context, axes, "rgb(0, 191, 255)", 1, t_anim); 
+drawAxes(context, axes);
+
+}
+
+function drawAxes(context, axes) {
+
+var x0 = axes.x0;
+var y0 = axes.y0;
+var xmin = axes.doNegativeX ? 0 : x0;
+ 
+	// рисуем оси
+context.beginPath();
+context.lineWidth = 1;
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+context.lineTo(width_global, y0);
+context.moveTo(x0, 0);
+context.lineTo(x0, height_global);
+context.stroke();
+context.closePath();
+ 
+	// подписываем оси
+context.beginPath();
+context.fillStyle = "#000000";
+context.font = "bold 12px sans-serif";
+context.fillText("x", width_global - 10, axes.y0 - 5);
+context.fillText("y", axes.x0 + 10, 10);
+context.closePath();
+
+}
+
+function drawGraph (context, axes, color, thick, t_anim) {
+	
+	// задаём шаг, переменные для абсциссы и для ординаты при отрисовке функции, точку начала координат и коэффициент масштабирования
+var x, y, dx = 0.1; step_t = 0.1, x0 = axes.x0, y0 = axes.y0, scale = axes.scale;
+var end = canvas.width;
+var start = -end;
+
+	// для вывода значений
+var TheTextBox = document.getElementById("Output");
+var div = document.getElementById("textDiv");
+
+// задание диапазона изменения параметра
+if (func_num == 1) {
+	t_left = 0; t_right = Math.PI;
+	sgn = true;
+} else if (func_num == 2) {
+	t_left = 0; t_right = 2*Math.PI;
+	sgn = false;
+} else if (func_num == 3) {
+	t_left = -width_global/130; t_right = -t_left;
+	sgn = true;
+} else if (func_num == 4) {
+	t_left = -3*Math.PI; t_right = 3*Math.PI;
+	sgn = false;
+} else if (func_num == 5) {
+	t_left = -width_global/120; t_right = -t_left;
+	sgn = false;
+}
+
+
+// отрисовка касательной (для различных кривых)
+
+if (func_num == 1) {
+
+	context.beginPath();
+	context.lineWidth = thick;
+	context.strokeStyle = "rgb(244, 122, 0)";
+	context.setLineDash([1, 0]);
+
+	context.moveTo(x0 + start, y0 - (scale*(evalY(t_anim) + (Math.sin(t_anim)/Math.cos(t_anim))*(start/scale - evalX(t_anim)))));
+	context.lineTo(x0 + end, y0 - (scale*(evalY(t_anim) + (Math.sin(t_anim)/Math.cos(t_anim))*(end/scale - evalX(t_anim)))));
+	 
+	context.stroke();
+	context.closePath();
+	
+	var x1 = evalX(t_anim);
+	var x2 = -evalY(t_anim)/((Math.sin(t_anim)/Math.cos(t_anim))) + evalX(t_anim);
+	var y1 = evalY(t_anim);
+	var y2 = 0;
+	 
+		// высчитывание площади
+	var distance_tan = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+	TheTextBox.value = Math.round(10*distance_tan);
+	div.textContent = "Длина касательной от точки касания до оси абсцисс:";
+	 
+		// отрисовка точки на оси абсцисс
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(x0 + x2*scale, y0 - y2*scale, 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	
+		// закраска части касательной между точками
+	context.beginPath();
+	context.lineWidth = 3;
+	context.strokeStyle = "#FF1493";
+	context.setLineDash([1, 0]);
+	context.moveTo(scale*evalX(t_anim) + x0, y0 - scale*evalY(t_anim));
+	context.lineTo(x0 + x2*scale, y0 - y2*scale);
+	context.stroke();
+	context.closePath();
+	
+}
+
+if (func_num == 2) {
+
+	 context.beginPath();
+	 context.lineWidth = thick;
+	 context.strokeStyle = "rgb(244, 122, 0)";
+	 context.setLineDash([1, 0]);
+
+	 y_start = scale*(evalY(t_anim) + (3*Math.pow(Math.sin(t_anim), 2)*(Math.cos(t_anim))/(3*Math.pow(Math.cos(t_anim), 2)*(-Math.sin(t_anim))))*(start/scale - evalX(t_anim)));
+	 y_end = scale*(evalY(t_anim) + (3*Math.pow(Math.sin(t_anim), 2)*(Math.cos(t_anim))/(3*Math.pow(Math.cos(t_anim), 2)*(-Math.sin(t_anim))))*(end/scale - evalX(t_anim)));
+	 
+	 context.moveTo(x0 + start, y0 - y_start);
+	 context.lineTo(x0 + end, y0 - y_end);
+
+	 context.stroke();
+	 context.closePath();
+	 
+	 var y_der = (3*Math.pow(Math.sin(t_anim), 2)*(Math.cos(t_anim))/(3*Math.pow(Math.cos(t_anim), 2)*(-Math.sin(t_anim))));
+	 var x1 = 0;
+	 var y1 = -y_der*evalX(t_anim) + evalY(t_anim);
+	 var x2 = evalX(t_anim) - evalY(t_anim)/y_der;
+	 var y2 = 0;
+	 
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(x1*scale + x0, y0 - y1*scale, 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(x2*scale + x0, y0 - y2*scale, 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	
+	 var distance_tan = Math.sqrt((x2 - x1)*(x2 - x1) + (y2 - y1)*(y2 - y1));
+	 TheTextBox.value = Math.round(distance_tan);
+	 div.textContent = "Длина отрезка касательной между осями координат:";
+	 
+	context.beginPath();
+	context.lineWidth = 3;
+	context.strokeStyle = "#FF1493";
+	context.setLineDash([1, 0]);
+	context.moveTo(x1*scale + x0, y0 - y1*scale);
+	context.lineTo(x0 + x2*scale, y0 - y2*scale);
+	context.stroke();
+	context.closePath();
+ 
+}
+
+if (func_num == 3) {
+
+	 
+	 // находим точки пересечения касательной и асимптот
+		 
+	var x_intrsct_1, y_intrsct_1;
+	var intrsct = intersectPoints(1, -1, 0, evalX(t_anim), -evalY(t_anim), -1);
+	x_intrsct_1 = intrsct[0];
+	y_intrsct_1 = intrsct[1];
+	
+	var x_intrsct_2, y_intrsct_2;
+	intrsct = intersectPoints(-1, -1, 0, evalX(t_anim), -evalY(t_anim), -1);
+	x_intrsct_2 = intrsct[0];
+	y_intrsct_2 = intrsct[1];
+	
+	// отрисовываем точки пересечения и треугольник, построенный на них и точке начала координат
+	
+	context.beginPath();
+	context.fillStyle = "#FFFF00";
+	context.moveTo(x_intrsct_1*scale + x0, y0 - y_intrsct_1*scale);
+	context.lineTo(x_intrsct_2*scale + x0, y0 - y_intrsct_2*scale);
+	context.lineTo(x0, y0);
+	context.fill();
+	context.closePath();
+	
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(x_intrsct_1*scale + x0, y0 - y_intrsct_1*scale, 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(x_intrsct_2*scale + x0, y0 - y_intrsct_2*scale, 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	
+	// отрисовка касательной
+	
+	 context.beginPath();
+	 context.lineWidth = thick;
+	 context.strokeStyle = "rgb(244, 122, 0)";
+	 context.setLineDash([1, 0]);
+
+	 start = -width_global; end = -start;
+	 
+	 if (Math.abs(t_anim) < 0.00001) {
+		context.moveTo(x0 + evalX(t_anim)*scale, y0 + width_global*scale);
+		context.lineTo(x0 + evalX(t_anim)*scale, y0 - width_global*scale);
+	 } else {
+		context.moveTo(x0 + start, y0 - scale*((evalY(t_anim) + (evalX(t_anim)/evalY(t_anim))*(start/scale - evalX(t_anim)))));
+		context.lineTo(x0 + end, y0 - scale*((evalY(t_anim) + (evalX(t_anim)/evalY(t_anim))*(end/scale - evalX(t_anim)))));
+	}
+
+	 context.stroke();
+	 context.closePath();
+	
+	 // отрисовка асимптот
+	 
+	 context.beginPath();
+	 context.lineWidth = thick;
+	 context.strokeStyle = "rgb(244, 122, 0)";
+	 context.setLineDash([2, 1]);
+	
+	 start = -canvas.width*5; end = -start;
+	 context.moveTo(x0 + start, y0 - start);
+	 context.lineTo(x0 + end, y0 - end);
+
+	 context.stroke();
+	 context.closePath();
+	 
+	 context.beginPath();
+
+	 start = -canvas.width*5; end = -start;
+	 context.moveTo(x0 + start, y0 + start);
+	 context.lineTo(x0 + end, y0 + end);
+	 
+	 context.stroke();
+	 context.closePath();
+	
+	// находим длины сторон
+
+	var side_1 = vectLength(x0 + x_intrsct_1, y0 - y_intrsct_1, x0, y0)*scale;
+	var side_2 = vectLength(x0 + x_intrsct_2, y0 - y_intrsct_2, x0, y0)*scale;
+	var side_3 = vectLength(x0 + x_intrsct_2, y0 - y_intrsct_2, x0 + x_intrsct_1, y0 - y_intrsct_1)*scale;
+	
+	var hp = (side_1 + side_2 + side_3)/2;
+	var square = Math.sqrt(hp*(hp - side_1)*(hp - side_2)*(hp - side_3));
+	TheTextBox.value = Math.round(square);
+	div.textContent = "Площадь треугольника:";
+		
+}
+
+// отрисовка нормали
+
+if (func_num == 4) {
+
+	 context.beginPath();
+	 context.lineWidth = thick;
+	 context.strokeStyle = "rgb(244, 122, 0)";
+	 context.setLineDash([1, 0]);
+
+	 start = -800;
+	 end = 800;
+	 context.moveTo(x0 + start, y0 - scale*(evalY(t_anim) - (1/(Math.sin(t_anim)/Math.cos(t_anim)))*(start/scale - evalX(t_anim))));
+	 context.lineTo(x0 + end, y0 - scale*(evalY(t_anim) - (1/(Math.sin(t_anim)/Math.cos(t_anim)))*(end/scale - evalX(t_anim))));
+	 
+	 context.stroke();
+	 context.closePath();
+	 
+	 var a = (1/(Math.sin(t_anim)/Math.cos(t_anim)));
+	 var b = 1;
+	 var c = -evalY(t_anim) - (1/(Math.sin(t_anim)/Math.cos(t_anim)))*evalX(t_anim);
+	 var distance = distLinePoint(a, b, c, 0, 0);
+	 TheTextBox.value = Math.round(distance);
+	 
+    div.textContent = "Расстояние от нормали до начала координат:";
+	var x_a = 0;
+	var y_a = (evalY(t_anim) - (1/(Math.sin(t_anim)/Math.cos(t_anim)))*(x_a - evalX(t_anim)));
+	var x_b = 1;
+	var y_b = (evalY(t_anim) - (1/(Math.sin(t_anim)/Math.cos(t_anim)))*(x_b - evalX(t_anim)));
+	var x_ort = (x_a*(y_b - y_a)*(y_b - y_a) + (x_b - x_a)*(y_b - y_a)*(-y_a))/((y_b - y_a)*(y_b - y_a) + (x_b - x_a)*(x_b - x_a));
+	var y_ort = ((x_b - x_a)*(0 - x_ort))/(y_b - y_a) + 0;
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(scale*evalX(t_anim) + x0, y0 - scale*evalY(t_anim), 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	
+		// проведение выделенной линии от нормали до начала координат
+	context.beginPath();
+	context.lineWidth = 3;
+	context.strokeStyle = "#FF1493";
+	context.setLineDash([1, 0]);
+	context.moveTo(x0 + scale*x_ort, y0 - scale*y_ort);
+	context.lineTo(x0, y0);
+	context.stroke();
+	context.closePath();
+
+}
+
+if (func_num == 5) {
+	context.beginPath();
+	context.lineWidth = thick;
+	context.strokeStyle = "rgb(244, 122, 0)";
+	context.setLineDash([1, 0]);
+	start = -width_global; end = width_global;
+	
+	y_start = scale*(evalY(t_anim) + (Math.sin(t_anim)/(1 - Math.cos(t_anim)))*(start/scale - evalX(t_anim)));
+	y_end = scale*(evalY(t_anim) + (Math.sin(t_anim)/(1 - Math.cos(t_anim)))*(end/scale - evalX(t_anim)));
+	
+	context.moveTo(x0 + start, y0 - y_start);
+	context.lineTo(x0 + end, y0 - y_end);
+	
+	context.stroke();
+	context.closePath(); 
+	
+	context.beginPath();	
+	y_start = scale*(evalY(t_anim + Math.PI) + (Math.sin(t_anim + Math.PI)/(1 - Math.cos(t_anim + Math.PI)))*(start/scale - evalX(t_anim + Math.PI)));
+	y_end = scale*(evalY(t_anim + Math.PI) + (Math.sin(t_anim + Math.PI)/(1 - Math.cos(t_anim + Math.PI)))*(end/scale - evalX(t_anim + Math.PI)));
+	
+	context.moveTo(x0 + start, y0 - y_start);
+	context.lineTo(x0 + end, y0 - y_end);
+	
+	context.stroke();
+	context.closePath(); 
+	
+	var a1 = -(Math.sin(t_anim)/(1 - Math.cos(t_anim)));
+	var a2 = -(Math.sin(t_anim + Math.PI)/(1 - Math.cos(t_anim + Math.PI)));
+	var b1 = 1;
+	var b2 = 1;
+	var c1 = -(evalY(t_anim) + (Math.sin(t_anim)/(1 - Math.cos(t_anim)))*(-evalX(t_anim)));
+	var c2 = -(evalY(t_anim + Math.PI) + (Math.sin(t_anim + Math.PI)/(1 - Math.cos(t_anim + Math.PI)))*(-evalX(t_anim + Math.PI)));
+	
+	if (a1*a2 + b1*b2 < 0.01) {
+		var angle_tangent = 361;
+	} else {
+		var angle_tangent = (a1*b2 - a2*b1)/(a1*a2 + b1*b2);
+	}
+	if (angle_tangent == 361) {
+		TheTextBox.value = 90;
+	} else {
+		TheTextBox.value = Math.atan(angle_tangent);
+	}
+	div.textContent = "Угол:";
+	
+	// выделяем угол
+	var x_intrsct, y_intrsct;
+	var intrsct = intersectPoints(a1, b1, c1, a2, b2, c2);
+	x_intrsct = intrsct[0];
+	y_intrsct = intrsct[1];
+
+	context.save();
+	context.beginPath();
+	context.moveTo(x0 + x_intrsct*scale, y0 - y_intrsct*scale);
+	var angle_2 = Math.atan((Math.sin(t_anim + Math.PI)/(1 - Math.cos(t_anim + Math.PI))));
+	var angle_1 = Math.atan((Math.sin(t_anim)/(1 - Math.cos(t_anim))));
+	var odd_angle;
+	if (angle_1 < 0) {
+		if (evalX(t_anim) < 0) {
+			odd_angle = Math.PI - Math.max(angle_1, angle_2);
+		} else {
+			odd_angle = -Math.max(angle_1, angle_2);
+		}
+	} else {
+	if (evalX(t_anim) < 0) {
+			odd_angle = -Math.min(angle_1, angle_2);
+		} else {
+			odd_angle = Math.PI - Math.min(angle_1, angle_2);
+		}
+		
+	}
+	context.arc(x0 + x_intrsct*scale, y0 - y_intrsct*scale, 15, odd_angle, odd_angle + Math.PI*1/2);
+	context.closePath();
+	context.fillStyle = "red";
+	context.globalAlpha = 0.25;
+	context.fill();
+	context.closePath();
+	context.restore();
+}
+
+	 
+	// рисуем график функции
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = color;
+context.setLineDash([2, 0]);
+
+var sgn; // есть ли вторая ветвь графика
+
+
+// отрисовка первой ветви графика
+for (var t = t_left; t <= t_right; t = t + step_t) {
+	x = evalX(t)*scale;
+	y = evalY(t)*scale;
+	if (t == t_left) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+	
+context.stroke();
+context.closePath();
+
+// отрисовка второй ветви графика
+if (sgn) {
+	context.beginPath();
+	
+	for (var t = t_left; t <= t_right; t = t + step_t) {
+		x = -evalX(t)*scale;
+		y = evalY(t)*scale;
+		if (t == t_left) {
+			context.moveTo(x0 + x, y0 - y);
+		} else {
+			context.lineTo(x0 + x, y0 - y);
+		}
+	}
+			
+	context.stroke();
+	context.closePath();
+}
+		// отрисовка кружка, двигающегося по параметрической кривой
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(scale*evalX(t_anim) + x0, y0 - scale*evalY(t_anim), 5, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+
+}
+</script>
+
+</head>
+<body onload = "draw()" class = "control">
+<div id="wrapper">
+<div id="headerwrap">
+<div id="header">
+<table width = "100%" align = "center">
+<tr>
+<th width = "100px"><ul id="menu-bar">
+<li><a href="#">Задачи</a>
+<ul>
+<li><a href = "p14ex2_bnav.html">14.2 б</a></li>
+<li><a href = "p14ex2_cnav.html">14.2 в</a></li>
+<li><a href = "p14ex5nav.html">14.5</a></li>
+<li><a href = "p15ex15nav.html">15.15</a></li>
+<li><a href = "p15ex14nav.html">15.14</a></li>
+<li><a href = "p16ex10nav.html">16.10</a></li>
+<li><a href = "p18ex5nav.html">18.5</a></li>
+</ul>
+</li></ul> </th>
+<th><div id = "exercise"> 15.14 </div>
+</th>
+</tr>
+</table>
+		</div>
+        </div>
+   
+        <div id="contentliquid"><div id="contentwrap">
+        <div id="content">
+        <canvas id="canvas"></canvas>
+		</div>
+        </div></div>
+        <div id="rightcolumnwrap">
+        <div id="rightcolumn">
+
+        <aside id="sideRight">
+			<form>
+			<br><input type = "Button" id = "makeAnimationButton" value = " Начать показ " onclick = "makeAnimation(this.form)"><br>
+			<input type = "Button" id = "controlButton" value = " Пауза " onclick = "controlAnimation(this.form)"><br>
+			</form>
+			<br><br><strong> Выберите функцию:</strong> <br><br>
+			<FORM NAME = "funcGetter">
+			<div id="radio">
+			<input type = "radio" name = "funchoice" value = "func1" id = "func1" checked onclick = "redrawCanvas()" class = "radio"> трактриса <br>
+			<input type = "radio" name = "funchoice" value = "func2" id = "func2" onclick = "redrawCanvas()" class = "radio"> астроида <br>
+			<input type = "radio" name = "funchoice" value = "func3" id = "func3" onclick = "redrawCanvas()" class = "radio"> гипербола <br>
+			<input type = "radio" name = "funchoice" value = "func4" id = "func4" onclick = "redrawCanvas()" class = "radio"> x = cos(t) + t*sin(t); y = sin(t) - t*cos(t); <br>
+			<input type = "radio" name = "funchoice" value = "func5" id = "func5" onclick = "redrawCanvas()" class = "radio"> x = t - sin(t); y = 1 - cos(t);<br>
+			</div><br>
+			</FORM>
+		</aside>
+				<div id="textDiv"></div>
+			<INPUT type = "Text" name = "Output" id = "Output" DISABLED>
+		</div>
+        </div>
+    </div>
+</body>
+</html>

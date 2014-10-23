@@ -1,0 +1,71 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Compound areas (mid demo)</title>
+	<style>
+		input {
+		}
+	</style>
+</head>
+
+<body>
+	<div id="plot_area" width="800" height="800" style="float: left"></div>
+	<div style="float: left">
+		<div id="options"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/LAB.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			var _UI = new MathUI(document.getElementById('options'))
+				.push('select', {id: 'dim', options: ['x', 'y', 'z'], action: updateSection})
+				.push('number', {pre: ' = ', id: 'val', action: updateSection, br: true})
+				.push('checkbox', {pre: 'Show the original shapes ', id: 'helpers', action: plotArea});
+			
+			var plotters = new MultiPlotter3d(document.getElementById('plot_area'), 2);
+			plotters[1].setView2();
+			plotters.synchronize = false;
+			var numPoints = plotters[0].useWebGL? 101: 17;
+			var pipe1 = function(p) {return norm(p) + norm([p[1], p[2]]) < 2},
+				pipe2 = function(p) {return p[1] > 0},
+				pipe3 = function(p) {return p[0] + p[1] < 1},
+				pipesIn = function(p) {return pipe1(p) && pipe2(p) && pipe3(p)};
+			
+			plotArea();
+			
+			function plotArea() {
+				plotters.reset();
+				
+				if (_UI.helpers.value) {
+					var bounds = [].concat(implicit(pipe1, 2), implicit(pipe2, 2), implicit(pipe3, 2));
+					plotters[0].plot3d(bounds, {type: '-', ID: 'pipes', col: 'grey'});
+				}
+				plotters[0].plot3d(implicit(pipesIn, 2), {type: '-', col: 'bblue', ID: 'surf', overlay: _UI.helpers.value, axisLen: 2});
+			
+				updateSection();
+			}
+			
+			function updateSection() {
+				var dim = _UI.dim.value, height = _UI.val.value;
+				
+				var section = (curve2mesh(levelCurve({val: height, cond: pipesIn, dist:2, levelDim:dim, rough:81})[0]));
+				plotters[0].plot3d(section, {col: 'seagreen', type: 's', ID: 'section3d'});
+				plotters[1].plot3d(apply(section, project.along[dim]), {col: 'seagreen', ID: 'section2d', type: 's', axisLen: 2});
+				
+				plotters[1].removeByID('pipes2d');
+				if (_UI.helpers.value) {
+					var flatBounds = [].concat(
+							levelCurve({val: height, cond: pipe1, dist:2, levelDim:dim}),
+							levelCurve({val: height, cond: pipe2, dist:2, levelDim:dim}),
+							levelCurve({val: height, cond: pipe3, dist:2, levelDim:dim})
+						);
+					plotters[1].plot3d(apply(flatBounds, project.along[dim]), {type: '-', ID: 'pipes2d', col: 'grey'});
+				}
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>

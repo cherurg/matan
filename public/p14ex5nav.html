@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>14.5</title>
+<!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<meta name = "keywords" content = "">
+<meta name = "description" content = "">
+<meta charset = "utf-8">
+<link rel = "stylesheet" href = "stylesheets/style.css">
+<script src = "scripts/mousetrap.min.js"></script>
+
+<script type = "text/javascript">
+
+// управление построением графика
+var func_num = 1;
+var start_point = -150;
+var xpos_plot = start_point;
+
+var current_point = 0;	// текущая подсвечиваемая точка недиффереренцируемости
+var prev_point = 1;
+
+// управление анимацией
+var stop_checker = false;
+var was_stopped = false;
+var animation_started = 0;
+var slow_motion_checker = 0;
+var x_increment;
+
+var scale_mult = 1.10;
+var orig_scale_mult = scale_mult;
+var prev_scale_mult = scale_mult;
+var improved = false;
+var count = 1;
+
+var width_global = 700;
+var height_global = 700;
+
+function funcValue(x) { 
+	x = x/scale_mult;
+	if (x == 0) {
+		return 0;
+	} else {
+		return scale_mult*x*x*Math.abs(Math.cos(Math.PI/(x/2)));
+	}
+}
+
+function derivValue(x) { 
+	x = x/scale_mult;
+	if (Math.cos(Math.PI/(x/2)) < 0) {
+		return scale_mult*2*x*Math.abs(Math.cos(Math.PI/(x/2))) + x*x*Math.sin(Math.PI/(x/2))*(-2/(x*x));
+	} else if (Math.cos(Math.PI/(x/2)) > 0) {
+		return scale_mult*2*x*Math.abs(Math.cos(Math.PI/(x/2))) - x*x*Math.sin(Math.PI/(x/2))*(-2/(x*x));
+	} else return scale_mult*2*x*Math.abs(Math.cos(Math.PI/(x/2)));
+}
+
+function makeAnimation(form) {
+
+  animation_started++;
+  if (animation_started == 1) {
+	var timer = setInterval(drawAnimation, 1);
+  }
+  if (!was_stopped) {
+	xpos_plot = start_point;
+	}
+	was_stopped = false;
+
+function drawAnimation() {
+
+x_increment = 1.4;
+prev_scale_mult = scale_mult;
+var border = 10; // граница, с которой начинается логарифмическое приближение
+
+if (count < 10 && Math.abs(xpos_plot) < width_global/border) {
+	count++;
+}
+
+if (xpos_plot > -width_global/3*count && xpos_plot < 0 && scale_mult < Math.pow(orig_scale_mult, count)) {
+	scale_mult = scale_mult*orig_scale_mult;
+	improved = false;
+} 
+
+if (xpos_plot < width_global/3*count && xpos_plot > 0 && scale_mult >= Math.pow(orig_scale_mult, count - 1)) {
+	scale_mult = scale_mult/orig_scale_mult;
+}
+
+if (Math.abs(xpos_plot) < width_global/10) {
+	x_increment = 3;
+}
+
+if (Math.abs(xpos_plot) < width_global/30) {
+	x_increment = 5;
+}
+
+if (Math.abs(xpos_plot) < width_global/300) {
+	x_increment = 10;
+}
+
+if (xpos_plot - x_increment < 0 && xpos_plot + x_increment > 0) {
+	count = 1;
+}
+
+xpos_plot = xpos_plot + x_increment;
+
+redrawCanvas();
+    if (xpos_plot > width_global || stop_checker == true) {
+      clearInterval(timer);
+    }
+  }
+  
+}
+
+function controlAnimation(form) {
+	if (stop_checker == false) {	// если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { 						// если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation(form);
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+}
+
+Mousetrap.bind('space', function() { 
+	if (stop_checker == false) {	// если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { 						// если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation();
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+ }, 'keydown');
+
+function redrawCanvas() {
+	draw();
+}
+
+function draw() {
+
+var canvas = document.getElementById("canvas");
+var axes = {};
+var context = canvas.getContext("2d");
+ 
+	// задаём размеры холста
+context.canvas.width  = window.innerWidth*0.5;
+context.canvas.height = window.innerHeight*0.8;
+
+width_global = context.canvas.width;
+height_global = context.canvas.height;
+ 
+	// если браузер не поддерживает пунктирные линии
+if (!context.setLineDash) {
+	context.setLineDash = function () {}
+}
+ 
+	// очищение холста от предыдущих графиков
+context.clearRect(0, 0, canvas.width, canvas.height);
+ 
+axes.x0 = 0.5*canvas.width;
+axes.y0 = 0.6*canvas.height;
+
+axes.scale = 200;
+axes.doNegativeX = true;
+ 
+drawGraph(context, axes, "rgb(0, 191, 255)", 1, xpos_plot); 
+drawAxes(context, axes);
+
+}
+
+function drawAxes(context, axes) {
+
+var x0 = axes.x0;
+var y0 = axes.y0;
+var xmin = axes.doNegativeX ? 0 : x0;
+ 
+	// рисуем оси
+	
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+context.lineTo(width_global, y0);
+context.moveTo(x0, 0);
+context.lineTo(x0, height_global);
+context.stroke();
+context.closePath();
+
+	// рисуем метки на осях
+	
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000"; 
+context.moveTo(xmin, y0);
+
+var number = 100;
+var step = 15*width_global/number;
+var n;
+var k;
+
+for (var i = 1; i < number; i++) {
+	k = i*step;
+	context.fillStyle = "#bbb";
+	context.moveTo(x0 + k, y0);
+	context.lineTo(x0 + k, y0 + 2);
+	context.moveTo(x0 + k, y0);
+	context.lineTo(x0 + k, y0 - 2);
+	context.moveTo(x0 - k, y0);
+	context.lineTo(x0 - k, y0 + 2);
+	context.moveTo(x0 - k, y0);
+	context.lineTo(x0 - k, y0 - 2);
+	n = ((i/scale_mult).toPrecision(1)).toString();
+	context.font = "bold 11px sans-serif";
+	context.fillText(n, x0 + k, y0 - 5);
+	context.font = "bold 11px sans-serif";
+	context.fillText("-" + n, x0 - k, y0 - 5);
+	context.stroke();
+	context.closePath();
+	k = k/step;
+}
+
+for (var i = 1; i < number; i++) {
+	k = i*step;
+	context.moveTo(x0, y0 + k);
+	context.lineTo(x0 + 2, y0 + k);
+	context.moveTo(x0, y0 + k);
+	context.lineTo(x0 - 2, y0 + k);
+	context.moveTo(x0, y0 - k);
+	context.lineTo(x0 + 2, y0 - k);
+	context.moveTo(x0, y0 - k);
+	context.lineTo(x0 - 2, y0 - k);
+	n = ((i/scale_mult).toPrecision(1)).toString();
+	context.font = "bold 11px sans-serif";
+	context.fillText(n, x0 + 5, y0 - k);
+	context.font = "bold 11px sans-serif";
+	context.fillText("-" + n, x0 + 5, y0 + k);
+	context.stroke();
+	context.closePath();
+	k = k/step;
+}
+ 
+	// подписываем оси
+	
+context.beginPath();
+context.fillStyle = "#000000";
+context.font = "bold 12px sans-serif";
+context.fillText("x", width_global - 10, axes.y0 - 5);
+context.fillText("y", axes.x0 + 10, 10);
+context.closePath();
+
+}
+
+function drawGraph (context, axes, color, thick, xpos_plot) {
+	
+	// задаём шаг, переменные для абсциссы и для ординаты при отрисовке функции, точку начала координат и коэффициент масштабирования
+	
+var x, y, dx = 0.1, x0 = axes.x0, y0 = axes.y0, scale = axes.scale;
+var end = Math.round((context.canvas.width - x0)/dx);
+var start = axes.doNegativeX ? Math.round(-x0/dx) : 0;
+ 
+	// рисуем график производной
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#ddd";
+
+dx = 0.3;
+for (var i = start; i <= end; i++) {
+	x = dx*i; y = scale*derivValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+  
+	// рисуем график функции
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = color;
+context.setLineDash([2, 0]);
+
+for (var i = start; i <= end; i++) {
+	x = dx*i; y = scale*funcValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+	 
+start = width_global/2;
+end = -start;
+
+// рисуем секущую через (0, 0) и текущую точку
+	   
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#800080";
+context.setLineDash([1, 0]);
+
+context.moveTo(x0 + start, y0 - scale*(funcValue(xpos_plot/scale)/(xpos_plot/scale))*(start/scale));
+context.lineTo(x0 + end, y0 - scale*(funcValue(xpos_plot/scale)/(xpos_plot/scale))*(end/scale));
+	
+context.stroke();
+context.closePath();
+
+	// выделение точки, двигающейся по графику
+
+var radius = 5;
+
+context.beginPath();
+context.fillStyle = "rgb(244, 122, 0)";
+context.arc(xpos_plot + x0, y0 - scale*funcValue(xpos_plot/scale), radius, 0, Math.PI*2, false);
+context.fill();
+context.closePath();
+
+	// выделение нуля
+
+context.beginPath();
+context.fillStyle = "rgb(225, 0, 0)";
+context.arc(x0, y0, radius, 0, Math.PI*2, false);
+context.fill();
+context.closePath();
+
+	// выделение точек недиффиренцируемости
+
+var eps = 7; // определяет, как близко к 0 заканчивается построение
+var n = 1;
+radius = 3;
+var limit = n;
+
+while (Math.abs(scale*4*scale_mult/(2*n - 1)) > eps) {
+	context.beginPath();
+	context.fillStyle = "rgb(244, 90, 122)";
+	context.arc(x0 + scale*4*scale_mult/(2*n - 1), y0, radius, 0, Math.PI*2, false);
+	context.arc(x0 + scale*4*scale_mult/(-2*n - 1), y0, radius, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	n++;
+	limit = n;
+}
+n = 0; // счётчик для поиска текущей точки недифференцируемости 
+
+prev_point = current_point;
+
+if (xpos_plot < 0) {
+	while ( scale*(4*scale_mult/(-2*n - 1)) <= xpos_plot ) {
+		n = n + 1;
+		current_point = (4*scale_mult/(-2*n - 1));
+	}
+} else if (xpos_plot > 0) {
+	n = limit;
+	while ( scale*(4*scale_mult/(2*n - 1)) <= xpos_plot ) {
+		n = n - 1;
+		current_point = (4*scale_mult/(2*n - 1));
+	}
+}
+
+if (prev_scale_mult != scale_mult && improved == false) {
+	prev_point = prev_point*orig_scale_mult;
+	improved = true;
+}
+
+if ((funcValue((xpos_plot + x_increment)/scale) - funcValue(xpos_plot/scale) < 0) || prev_point == 0 ) {
+	current_point = current_point;
+} else {
+	current_point = prev_point;
+}
+
+	// построение секущей через точку на графике и точку недифференцируемости
+
+context.beginPath();
+context.fillStyle = "rgb(0, 0, 0)";
+context.arc(x0 + scale*current_point, y0, 3, 0, Math.PI*2, false);
+context.fill();
+context.closePath();
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#00CDCD";
+context.setLineDash([1, 0]);
+
+x_1 = scale*current_point; y_1 = 0;
+x_2 = xpos_plot; y_2 = scale*funcValue(xpos_plot/scale);
+tangent = (y_2 - y_1)/(x_2 - x_1);
+
+context.moveTo(x0 + start, y0 - tangent*start - (y_1 - tangent*(x_1)));
+context.lineTo(x0 + end,  y0 - tangent*end - (y_2 - tangent*(x_2)));
+	
+context.stroke();
+context.closePath();
+
+	// для вывода значений
+	
+var div = document.getElementById("textDiv");
+var output_value = derivValue(xpos_plot/scale).toPrecision(3);
+if (output_value < 0) {
+	document.getElementById('textDiv').style.background = "#C0FF3E";
+} else {
+	document.getElementById('textDiv').style.background = "#FF4500";
+}
+div.textContent = output_value;
+
+}
+
+</script>
+
+</head>
+<body onload = "draw()" class = "control">
+<div id="wrapper">
+<div id="headerwrap">
+<div id="header">
+<table width = "100%" align = "center">
+<tr>
+<th width = "100px"><ul id="menu-bar">
+<li><a href="#">Задачи</a>
+<ul>
+<li><a href = "p14ex2_bnav.html">14.2 б</a></li>
+<li><a href = "p14ex2_cnav.html">14.2 в</a></li>
+<li><a href = "p14ex5nav.html">14.5</a></li>
+<li><a href = "p15ex15nav.html">15.15</a></li>
+<li><a href = "p15ex14nav.html">15.14</a></li>
+<li><a href = "p16ex10nav.html">16.10</a></li>
+<li><a href = "p18ex5nav.html">18.5</a></li>
+</ul>
+</li></ul> </th>
+<th><div id = "exercise"> 14.5 </div>
+Голубым цветом нарисована секущая через точу недифференцируемости и (x, f(x)), фиолетовым - секущая через (x, f(x)) и (0, 0), серой сплошной линией - график производной, синей сплошной - функции. Кружком отмечена точка касания.Текущая точка недифференцируемости (через которую строится секущая) подсвечивается синим, остальные - розовым.
+</th>
+</tr>
+</table>
+		</div>
+        </div>
+   
+        <div id="contentliquid"><div id="contentwrap">
+        <div id="content">
+        <canvas id="canvas"></canvas>
+		</div>
+        </div></div>
+        <div id="rightcolumnwrap">
+        <div id="rightcolumn">
+        <aside id = "sideRight">
+			<form>
+			<br><input type = "Button" id = "makeAnimationButton" value = " Начать показ " onclick = "makeAnimation(this.form)"><br>
+			<input type = "Button" id = "controlButton" value = " Пауза " onclick = "controlAnimation(this.form)"><br>
+			</form>
+			<br>Тангенс угла наклона касательной:<div id = "values"> <br>
+			<div id = "textDiv"></div> </div><br><br>
+			</div><br>
+			</FORM>
+		</aside>
+		</div>
+        </div>
+    </div>
+</body>
+</html>

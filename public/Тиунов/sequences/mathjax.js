@@ -1,0 +1,51 @@
+MathJax.Hub.Config({   
+  TeX: {
+    Macros: {     
+     sgn: "\\mathop{\\rm sgn}",
+     re: "\\mathop{\\rm Re}",
+     im: "\\mathop{\\rm Im}",
+     tg: "\\mathop{\\rm tg}",
+     ctg: "\\mathop{\\rm ctg}",
+     sh: "\\mathop{\\rm sh}",
+     ch: "\\mathop{\\rm ch}",
+     th: "\\mathop{\\rm th}",
+     cth: "\\mathop{\\rm cth}",
+     arcctg: "\\mathop{\\rm arcctg}",
+     rang: "\\mathop{{\\rm rang}}",
+     grad: "\\mathop{\\rm grad}",
+     arsh: "\\mathop{\\rm arsh}",
+     arch: "\\mathop{\\rm arch}",
+     arth: "\\mathop{\\rm arth}",
+     arctg: "\\mathop{\\rm arcth}",
+     arcth: "\\mathop{\\rm arcth}",
+     card: "\\mathop{\\rm card}",
+     real: "\\mathbb R",
+     le: "\\leqslant",
+     ge: "\\geqslant",
+     phi: "\\varphi",
+     bo: "\\underline{\\mathrm O}",
+     so: "\\bar{\\mathrm o}",
+     nat: "\\mathbb N",
+     LimFx: "\\lim\\limits_{x \\to a} f(x)",
+     fune: ["\\underset{x \\to #1}{\\sim}",1],
+     cllim: "\\lim\\limits_{n \\to \\infty} \\!",
+     dlim: "\\lim\\limits_{\\overline{n \\to \\infty}}\\!",
+     ulim: "\\overline{\\cllim}",
+     term: ["\\{#1_n\\}",1],
+     dx: "\\Delta x",
+     dy: "\\Delta y",
+     dz: "\\Delta z",
+     dt: "\\Delta t",
+     ix: "\\,dx",
+     pa: "\\partial",
+     der: "\\lim\\limits_{\\dx \\to 0}",
+     eps: "\\varepsilon"
+	},
+	equationNumbers: {autoNumber: "AMS"}
+  },
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},   
+  "HTML-CSS": {
+       mtextFontInherit: true,
+       scale: 110
+     }
+});

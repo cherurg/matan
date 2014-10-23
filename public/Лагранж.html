@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <!-- Тег meta для указания кодировки -->
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.97/jsxgraphcore.js"></script>
+  <!--<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.92/jsxgraphcore.js"></script>-->
+	 <link rel="stylesheet" type="text/css" href="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css" />
+	<script type="text/javascript"
+	src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+
+	<script type="text/javascript"
+	src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+  <style>
+	 .boldtable, .boldtable TD, .boldtable TH
+		{
+		font-size:10pt;
+		
+		}
+  </style>
+  <style>
+   h1 {
+      font-size: 100%; /* Размер шрифта в процентах */ 
+   } 
+   </style>
+  <link rel="stylesheet" href="/wiki/skins/monobook/IE70Fixes.css?270" media="screen" />
+  </head>
+  
+
+<body> 
+
+
+		<div id="my_text">
+		
+		<h3>Теорема Лагранжа (формула конечных приращений)</h3>
+		<b><i>Формулировка.</i></b> Пусть функция \(f(x)\) определена и непрерывна на отрезке \([a, b]\), и существует конечная производная \(f'(x)\) на интервале \((a, b)\), тогда найдется такая точка \(c\in(a, b)\), что для нее выполняется равенство \( {\Large \frac{f(b)-f(a)}{b-a}}=f'(c) \).
+		<br>
+		<br>
+		На данном графике приведена геометрическая трактовка данной теоремы: на отрезке \([a, b]\) на графике найдётся точка (т. \(C\)), 
+		в которой касательная параллельна хорде (отрезок \(AB\)), проходящей через точки графика, соответствующие 
+		концам отрезка. 
+		<br>
+		<br>
+		Ниже строится многочлен Лагранжа по 4-м точкам, все точки можно двигать. Точка \(A\) и точка \(B\) определяют концы хорды. В точке \(C\) касательная к графику параллельна хорде \(AB\). Для изменения размера графика, используйте колесико мыши. Для его передвижения удерживайте кнопку shift и перетаскивайте. Также можно использовать кнопки в правом нижнем углу графика.
+	
+		</div> 
+	
+	<div id='box0' class='jxgbox' style='width:600px; height:400px;'></div>
+	<hr>
+	<div>
+	Ниже можно задать функцию и границы отрезка \([a, b]\), для этого воспользуйтесь "словарем", который приведен под графиком. Точки \(A\) и \(B\) можно двигать. Внимание: особые точки не обрабатываются, ответственность за коррекность функциии несет пользователь.  
+	</div>
+	\(f(x)=\:\)<input type="text" id="eingabe" value="x*x-4*x+4">
+	<br>
+	\(a\:=\quad\:\)<input type="text" id="eingabeAx" value="-1">
+	<br>
+	\(b\:=\quad\:\)<input type="text" id="eingabeBx" value="3">
+	<br>
+	<input type="button" value="set" onClick="doIt()">
+	<div id='box' class='jxgbox' style='width:600px; height:400px;'></div>
+    
+<script>
+var board0 = JXG.JSXGraph.initBoard('box0', {boundingbox: [-5, 10, 7, -6], zoom : {factorX : 1.5,factorY : 1.5,wheel: true},axis:true, showCopyright:false});
+board0.suspendUpdate();
+var p = [];
+p[0] = board0.create('point', [-1,-2], {size:4,face:'x'});
+p[1] = board0.create('point', [6,5], {size:4,face:'x'});
+p[2] = board0.create('point', [-0.5,1], {name:'D', size:1});
+p[3] = board0.create('point', [3,3], {name:'E', size:1});
+var func = JXG.Math.Numerics.lagrangePolynomial(p);
+var graph0 = board0.create('functiongraph', [func,-100, 100]);
+ 
+var der = function(x) {
+     return JXG.Math.Numerics.D(func)(x)-(p[1].Y()-p[0].Y())/(p[1].X()-p[0].X());
+};
+ 
+var r0 = board0.create('glider', [
+                    function() { return JXG.Math.Numerics.root(der,(p[0].X()+p[1].X())*0.5); },
+                    function() { return func(JXG.Math.Numerics.root(der,(p[0].X()+p[1].X())*0.5)); },
+                    graph0], {strokeColor:'#990099', name:'C',size:4,fixed:true});
+board0.create('tangent', [r0], {strokeColor:'#990099'});
+line = board0.create('line',[p[0],p[1]],{strokeColor:'#ff0000',dash:2});
+ 
+board0.unsuspendUpdate();
+</script>
+
+<script>
+  
+	var board = JXG.JSXGraph.initBoard('box', {boundingbox: [-10, 10, 10, -10],zoom : {factorX : 1.5,factorY : 1.5,wheel: true}, axis:true, showCopyright:false});
+	board.unsuspendUpdate(); 
+	
+	eval("function f(x){ return "+document.getElementById("eingabe").value+";}");
+    eval("ax="+document.getElementById("eingabeAx").value+";");
+	eval("bx="+document.getElementById("eingabeBx").value+";");
+	
+	var graph = board.create('functiongraph', [function(x){ return f(x); },-100, 100]);
+   
+	var p0=board.create('glider', [ax,graph.Y(ax), graph], {strokeColor:'#0000ff', size:1, fixed:false}); //a
+	var p1=board.create('glider', [bx,graph.Y(bx), graph], {strokeColor:'#0000ff', size:1, fixed:false}); //b
+    
+	var g = function(x) 
+	{
+		return JXG.Math.Numerics.D(graph.Y)(x)-(p1.Y()-p0.Y())/(p1.X()-p0.X());
+	};
+    var ee = function() { return JXG.Math.Numerics.root(g,(p0.X()+p1.X())*0.5); };
+	var ff = function() { return graph.Y(JXG.Math.Numerics.root(g,(p0.X()+p1.X())*0.5)); };
+	var r = board.create('glider', 
+						[ee,
+						ff,
+						graph], 
+						{strokeColor:'#990099', name:'C',size:3,fixed:true});
+			
+	
+	var tang = board.create('tangent', [r], {strokeColor:'#990099'}); //касательная
+	line = board.create('line',[p0,p1],{strokeColor:'#ff0000',dash:1}); //хорда ab
+	board.unsuspendUpdate(); 
+	 
+   function doIt()
+   {
+		eval("function f(x){ return "+document.getElementById("eingabe").value+";}");
+		
+		
+		graph.Y = function(x){ return f(x); };
+		
+//graph.updateCurve()
+		
+		board.removeObject(p0);
+		board.removeObject(p1);
+		
+		eval("ax="+document.getElementById("eingabeAx").value+";");
+		eval("bx="+document.getElementById("eingabeBx").value+";");
+		
+		p0=board.create('glider', [ax,graph.Y(ax), graph], {strokeColor:'#0000ff', size:1, fixed:false}); //a
+		p1=board.create('glider', [bx,graph.Y(bx), graph], {strokeColor:'#0000ff', size:1, fixed:false}); //b
+		line = board.create('line',[p0,p1],{strokeColor:'#ff0000',dash:1}); //хорда ab
+		
+		g = function(x) 
+		{
+			return JXG.Math.Numerics.D(graph.Y)(x)-(p1.Y()-p0.Y())/(p1.X()-p0.X());
+		};
+		ee = function() { return JXG.Math.Numerics.root(g,(p0.X()+p1.X())*0.5); };
+		ff = function() { return graph.Y(JXG.Math.Numerics.root(g,(p0.X()+p1.X())*0.5)); };
+		r = board.create('glider', 
+						[ee,
+						ff,
+						graph], 
+						{strokeColor:'#990099', name:'C',size:3,fixed:true, strokeColor:'#ff0000'});
+		board.removeObject(tang);
+		tang = board.create('tangent', [r], {strokeColor:'#990099'})
+
+		board.update();
+    } 
+	</script>
+	
+	 <div id="my_table">
+			
+			<table class="boldtable">
+		  <h5>"Словарь" для задания пользовательской функции:</h5>
+		  <p>
+		  <tr>
+		  	<td>Math.sqrt(x)</a></td>
+			<td>\(\sqrt{x}\)</td>
+		  </tr>
+		  <tr>
+		  <tr>
+			<td>Math.exp(x)</a></td>
+			<td>\(e^x\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.log(x)</a></td>
+			<td>\(ln(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.pow(x,y)</a></td>
+			<td>\(x^y\)</td>
+		  </tr>
+			<td>Math.sin(x)</a></td>
+			<td>\(sin(x)\)</td>
+		  </tr>
+		  <tr>
+		  <tr>
+			<td>Math.cos(x)</a></td>
+			<td>\(cos(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.tan(x)</a></td>
+			<td>\(tg(x)\)</td>
+		  </tr>
+			<td>Math.acos(x)</a></td>
+			<td>\(arccos(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.asin(x)</a></td>
+			<td>\(arcsin(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.atan(x)</a></td>
+			<td>\(arctg(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.abs(x)</a></td>
+			<td>\(|x|\)</td>
+		  </tr>
+		  </p>
+		  
+		  
+		</table> 
+	    
+	</div>	
+<h1>Литература</h1>
+ <hr>
+  Фихтенгольц Г. М. Основы математического анализа, Том 1, стр.180, Наука, 1968
+  <br>
+  <h1>Ссылки</h1>
+ <hr>
+ Для создания данной страницы был частично взят код со страницы:
+ <br>
+ <a href="http://jsxgraph.uni-bayreuth.de/wiki/index.php/Even_simpler_function_plotter">
+ http://jsxgraph.uni-bayreuth.de/wiki/index.php/Even_simpler_function_plotter</a>
+</body>
+	</body>
+</html>

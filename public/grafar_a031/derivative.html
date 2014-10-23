@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Directional derivative</title>
+	<link rel="stylesheet" type="text/css" href="grafar_style.css" media="screen" />
+	<link href='http://fonts.googleapis.com/css?family=Cabin:700' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+	<div id="plot_area" style="width:78%; height:100%; display:inline-block"></div>
+	<div class = "grafar_ui">
+		<h1 id="grafar_logo">grafar jr.</h1>
+		<div id="options"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		launchPlotter(function() {
+			grafar.ui([
+					{type: 'group', col: '#4671D5', init: [
+						{type: 'label', init: 'f(x, y) = '},
+						{type: 'select', id: 'f', init: grafar.demos.explicit, bind: plotSurf}]
+					},
+					{type: 'group', col: '#FF6600', init: [
+						{type: 'label', init: 'p = '},
+						{type: 'vector', id: 'pt', init: [0, 0], bind: updateSection},
+						{type: 'br'},
+						{type: 'label', init: 'In direction: '},
+						{type: 'number', id: 'dir', init: 0, step: 1, bind: updateSection},
+						{type: 'label', init: ' deg. with the x-axis.'}]
+					},
+					{type: 'group', init: [
+						{type: 'label', init: 'f\'(p)_e = '},
+						{type: 'label', id: 'output'}]
+					}
+				], {container: 'options'});
+			
+			var panel = new grafar.Panel(document.getElementById('plot_area')).drawAxes(2);
+			
+			grafar.graphs['$'].setPanel(panel);	
+			var domain = 'x @= [-2, 2] & y @= [-2, 2]',
+				graphs = {},
+				contexts = {};
+				
+			['surface', 'surfaceSection', 'sectionPlane', 'point', 'tangentLine'].forEach(function(name) {
+				graphs[name] = new grafar.Graph();
+				contexts[name] = new grafaryaz.Context();
+				
+				grafar.bind(graphs[name].dataInterface(), contexts[name]);
+				
+				graphs[name].object.children[0].visible = false;
+			});
+			
+			plotSurf();
+			
+			function plotSurf() {
+				contexts.surface.set(domain + '& z == ' + grafar.demos.explicit[grafar.UI.f.val]);				
+				updateSection();
+			}
+			
+			function updateSection() {
+				var x0 = grafar.UI.pt.val[0],
+					y0 = grafar.UI.pt.val[1],
+				    angle = grafar.UI.dir.val / 180 * Math.PI,
+					condEqn = 'x == x0 + t * cos( ' + angle + ') & y == y0 + t * sin(' + angle + ') & t @= [-3, 3] & x0 == ' + x0 + ' & y0 == ' + y0,
+					func = grafar.demos.explicit[grafar.UI.f.val];
+				console.log(condEqn);
+				
+				contexts.point.set('x == ' + x0 + '& y == ' + y0 + ' & z == ' + func);
+				contexts.sectionPlane.set('z @= [-2, 2] & ' + condEqn);
+				contexts.surfaceSection.set('z == ' + func + ' & ' + condEqn);
+				contexts.tangentLine.set('z == delta_f_x(x0, y0) * (x - x0) + delta_f_y(x0, y0) * (y - y0) + f(x0,y0)' + ' & f(x,y) == ' + func + ' & ' + condEqn);
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Level curves</title>
+	<style>
+		input {
+			width: auto;
+			height: 30px;
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="plot_area" width="800" height="800" style="float: left"></div>
+	<div style="float: left">
+		<div id="options"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/LAB.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			var example, fLib = DemoFunctions.explicit;
+			var UI = new MathUI(document.getElementById('options'))
+				.push('label', {text: '\\(f(x, y) = \\)'})
+				.push('select', {id: 'f', options: getNames(fLib), action: plotSurf, br: true})
+				.push('label', {text: '\\( (x, y): f(x, y) =  \\)'})
+				.push('number', {id: 'zVal', action: updateLevel});
+		
+			var levelPlotter = new Plotter3d(document.getElementById('plot_area'));
+			var numPoints = levelPlotter.useWebGL? 41: 17;
+			plotSurf();
+			
+			function plotSurf() {
+				example = fLib[UI.f.value];
+						
+				var grid = eqGrid(example.range, numPoints, example.usePolar);
+				levelPlotter.plot3d(apply(grid, example.f), {ID: 'surf', axisLen: example.range});
+				
+				updateLevel();
+			}
+			
+			function updateLevel() {
+				var height = UI.zVal.value;
+				
+				levelPlotter.plot3d(levelCurve({f: function(p) {return example.f(p)[2]}, val:height, dist: example.range}),
+					{radius: example.range / 30, type: 'p-', col: 'borange', ID: 'plane'});
+				levelPlotter.plot3d(levelPlane(example.domain, height), {type: 's', col: 0xBBBBBB, alpha: .4, ID: 'inter'});
+				
+				levelPlotter.render();
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>

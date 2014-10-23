@@ -1,0 +1,45 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Level curves</title>
+	<link rel="stylesheet" type="text/css" href="grafar_style.css" media="screen" />
+</head>
+
+<body>
+	<div id="plot_area" style="width:78%; height:100%; display:inline-block"></div>
+	<div class = "grafar_ui">
+		<h1 id="grafar_logo">grafar jr.</h1>
+		<div id="options"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		launchPlotter(function() {
+			grafar.panel({id: 'base', container: 'plot_area'});
+			
+			grafar.panels['base'].drawAxes(2);
+			
+			function rotator(t) {
+				//console.log('input', t, [Math.abs(t[0]), Math.abs(t[1]), Math.sin(t[0]+t[1]+t[2])], [t[0], t[1], Math.sin(t[0]+t[1]+t[2])]);
+				//return [Math.sin(t[0]*t[1]), Math.cos(t[1]*t[0]), Math.sin(t[0]*t[0] + t[1]*t[1] +  Math.cos(t[2]))];
+				return [
+					(2 + t[1] * Math.cos(t[0])) * Math.cos(2*t[0]),
+					(2 + t[1] * Math.cos(t[0])) * Math.sin(2*t[0]),
+					t[1] * Math.sin(t[0]) * Math.sin(Math.cos(t[2]+ Math.random() / 10))
+				];
+			};
+			rotator.input = ['x', 'y', 'q'];
+			grafar.get('anim').pin('base').resolve({x: [-Math.PI/2, Math.PI/2], y: [-2, 2]}).set(rotator).setSamples(50);
+			
+			var t = 0, start = ST();
+			function animation() {
+				t = (ST() - start) / 1000;
+				grafar.get('anim').resolve({q: t});
+				window.requestAnimationFrame(animation.bind(this));
+			}
+			animation();
+		});
+	</script>
+</body>
+</html>

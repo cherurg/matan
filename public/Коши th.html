@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <!-- Тег meta для указания кодировки -->
+	<meta charset="utf-8">
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.91/jsxgraphcore.js"></script>
+	<link rel="stylesheet" type="text/css" href="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css" />
+	<script type="text/javascript"
+	src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+
+	<script type="text/javascript"
+	src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+	<link rel="stylesheet" href="/wiki/skins/monobook/IE70Fixes.css?270" media="screen" />
+	<style>
+   h1 {
+      font-size: 100%; /* Размер шрифта в процентах */ 
+   } 
+   </style>
+</head>
+<body> 
+
+<div id="my_text">
+		
+		<h3>Теорема Коши</h3>
+		<b><i>Формулировка.</i></b> Пусть: <i>1)</i> функции \(f(t)\) и \(g(t)\)  непрерывны на отрезке \([a, b]\);  <i>2)</i> существуют конечные производные \(f'(t)\) и \(g'(t)\) на интервале \((a, b)\); <i>3)</i> \(g'(t) \not= 0\) на \((a,b)\). Тогда найдется такая точка \(c\in(a, b)\), что для нее выполняется равенство \( {\Large \frac{f(b)-f(a)}{g(b)-g(a)}=\frac{f'(c)}{g'(c)}} \).
+		<br>
+		<br>
+		На данном графике приведена геометрическая трактовка данной теоремы:
+		если две функции \(x=f(t)\) и \(y=g(t)\) задают кривую на плоскости (то есть
+		определяют абсциссу и ординату через параметр \(t\)), то на любом отрезке
+		такой кривой, заданном значениями параметра \(t=a\) и \(t=b\), найдётся
+		касательный вектор, коллинеарный вектору перемещения от \((f(a),g(a))\)
+		(на графике т.\(A\)) до \((f(b),g(b))\) (на графике т.\(B)\).
+		<br>
+		<br>
+		Ниже можно задать собственные функции и значения параметров \(a\) и \(b\), для этого воспользуйтесь "словарем", который приведен под графиком. Внимание: особые точки не обрабатываются, ответственность за коррекность функциии несет пользователь.
+		<br>
+		Для изменения размера графика, используйте колесико мыши. Для его передвижения удерживайте кнопку shift и перетаскивайте. Также можно использовать кнопки в правом нижнем углу графика.
+	
+</div>
+
+\(f(t)\)=<input type="text" id="eingabe" value="Math.exp(t)">
+<br>
+\(g(t)\)=<input type="text" id="eingabe1" value="1+Math.exp(2*t)">
+<br>
+\(a\;=\;\)   <input type="text" id="eingabeA" value="-2">
+<br>
+\(b\;=\;\)   <input type="text" id="eingabeB" value="1">
+
+<input type="button" value="set" onClick="doIt()">
+<div id='box' class='jxgbox' style='width:600px; height:400px;'></div>
+<script>
+
+var board = JXG.JSXGraph.initBoard('box', {boundingbox: [-2.5, 10, 10, -5], axis:true, showCopyright:false});
+board.suspendUpdate();
+
+eval("function f(t){ return "+document.getElementById("eingabe").value+";}");
+eval("function g(t){ return "+document.getElementById("eingabe1").value+";}");
+
+eval("a="+document.getElementById("eingabeA").value+";");
+eval("b="+document.getElementById("eingabeB").value+";");
+
+var graph = board.create('curve', [function(t){ return f(t);}, function(t){ return g(t);}, a, b],{strokeColor:'blue',strokeWidth:3});
+var p0 = board.create('glider', [f(a), g(a), graph], {strokeColor:'#000099', size:1.2, fixed:true}); //a
+var p1 = board.create('glider', [f(b), g(b), graph], {strokeColor:'#000099', size:1.2, fixed:true}); //b
+line = board.create('line',[p0,p1],{strokeColor:'#ff0000',dash:1}); //хорда ab
+
+var P = function(t) 
+		{
+			return (JXG.Math.Numerics.D(f)(t))/(JXG.Math.Numerics.D(g)(t))-(p1.X()-p0.X())/(p1.Y()-p0.Y());
+		};
+	var	ee = function() { return f(JXG.Math.Numerics.root(P,(a+b)*0.5)); };
+	var	ff = function() { return g(JXG.Math.Numerics.root(P,(a+b)*0.5)); };
+	var	r = board.create('glider', 
+							[ee,
+							ff,
+							graph], 
+							{name:'C',size:2,fixed:true});
+				
+	
+	var tang = board.create('tangent', [r], {strokeColor:'#990099'}); //касательная
+	
+board.unsuspendUpdate();
+
+function doIt() //при нажатии на кнопку 
+   {
+		
+	eval("function f(t){ return "+document.getElementById("eingabe").value+";}");
+	eval("function g(t){ return "+document.getElementById("eingabe1").value+";}");
+
+	eval("a="+document.getElementById("eingabeA").value+";");
+	eval("b="+document.getElementById("eingabeB").value+";");
+    
+	//graph.updateCurve()
+		
+	board.removeObject(p0);
+	board.removeObject(p1);
+	board.removeObject(graph);
+	
+	graph = board.create('curve', [function(t){ return f(t);}, function(t){ return g(t);}, a, b],{strokeColor:'blue',strokeWidth:3});
+	//graph.updateCurve();
+	p0 = board.create('glider', [f(a), g(a), graph], {strokeColor:'#0000ff', size:1.2, fixed:true}); //a
+	p1 = board.create('glider', [f(b), g(b), graph], {strokeColor:'#0000ff', size:1.2, fixed:true});//b
+	line = board.create('line',[p0,p1],{strokeColor:'#ff0000',dash:1}); //хорда ab
+
+	P = function(t) 
+		{
+			return (JXG.Math.Numerics.D(f)(t))/(JXG.Math.Numerics.D(g)(t))-(p1.X()-p0.X())/(p1.Y()-p0.Y());
+		};
+		ee = function() { return f(JXG.Math.Numerics.root(P,(a+b)*0.5)); };
+		ff = function() { return g(JXG.Math.Numerics.root(P,(a+b)*0.5)); };
+		r = board.create('glider', 
+							[ee,
+							ff,
+							graph], 
+							{name:'C',size:2,fixed:true});
+				
+	board.removeObject(tang);
+	tang = board.create('tangent', [r], {strokeColor:'#990099'}); //касательная
+		
+	board.update();	
+    } 
+</script>
+<div id="my_table">
+			
+			<table class="boldtable">
+		  <h5>"Словарь" для задания пользовательской функции:</h5>
+		  <p>
+		  <tr>
+			<td>Math.abs(x)</a></td>
+			<td>\(|x|\)</td>
+		  </tr>
+		  <tr>
+		  	<td>Math.sqrt(x)</a></td>
+			<td>\(\sqrt{x}\)</td>
+		  </tr>
+		  <tr>
+		  <tr>
+			<td>Math.exp(x)</a></td>
+			<td>\(e^x\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.log(x)</a></td>
+			<td>\(ln(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.pow(x,y)</a></td>
+			<td>\(x^y\)</td>
+		  </tr>
+			<td>Math.sin(x)</a></td>
+			<td>\(sin(x)\)</td>
+		  </tr>
+		  <tr>
+		  <tr>
+			<td>Math.cos(x)</a></td>
+			<td>\(cos(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.tan(x)</a></td>
+			<td>\(tg(x)\)</td>
+		  </tr>
+			<td>Math.acos(x)</a></td>
+			<td>\(arccos(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.asin(x)</a></td>
+			<td>\(arcsin(x)\)</td>
+		  </tr>
+		  <tr>
+			<td>Math.atan(x)</a></td>
+			<td>\(arctg(x)\)</td>
+		  </tr>
+		  </p>
+		  
+		  
+		</table> 
+	    
+	</div>	
+<h1>Литература</h1>
+ <hr>
+  Фихтенгольц Г. М. Основы математического анализа, Том 1, стр.182, Наука, 1968
+  <br>
+  <h1>Ссылки</h1>
+ <hr>
+ Для создания данной страницы был частично взят код со страницы:
+ <br>
+ <a href="http://jsxgraph.uni-bayreuth.de/wiki/index.php/Even_simpler_function_plotter">
+ http://jsxgraph.uni-bayreuth.de/wiki/index.php/Even_simpler_function_plotter</a>
+</body>
+
+</html>

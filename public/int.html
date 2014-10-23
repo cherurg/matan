@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.91/jsxgraphcore.js"></script>
+  <script type="text/javascript"
+        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        </script>
+		<link rel="stylesheet" type="text/css" href="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css" />
+        <script type="text/javascript"
+        src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        </script>
+        <link rel="stylesheet" href="/wiki/skins/monobook/IE70Fixes.css?270" media="screen" />
+</head>
+<body>
+        <div>
+        <b>Задача:</b> вычислить интеграл \({\Large \int_{}^{}}\!\sqrt{1-\sin 2x}dx\).
+        <br>
+	Одна из систем символьных вычислений предлагает такой ответ: \({\large \int_{}^{}}\!\sqrt{1-sin(2x)}dx={\large -{\frac { \left( -1+\sin \left( 2\,x \right)  \right)  \left( \sin
+ \left( 2\,x \right) +1 \right) }{\cos \left( 2\,x \right) \sqrt {1-
+\sin \left( 2\,x \right) }}}}+C\)
+	<br>
+	График, соответствующий данному ответу, выгляди так: 
+	<br>
+	</div>
+	<!--<center>
+	--<img border="0" src="/home/lena/Downloads/bad int.jpg" alt="incorrect_int" width="500" height="400">
+	</center> -->
+	<div id='box' class='jxgbox' style='width:600px; height:400px;'></div>
+	<br>
+	<div>
+	<br>
+	Но этот ответ не является правильным. И действительно, рассмотрим функцию \(f(x)=\sqrt{1-\sin 2x}=\sqrt{(\cos x - \sin x)^2}=|\cos x-\sin x|=(\cos x-\sin x)\text{sgn}(\cos x - \sin x) \). Обозначив за \(I(x)={\Large \int_{}^{}}\!\sqrt{1-\sin 2x}dx \), находим 
+	<br>
+\[I(x)=\begin{cases}\qquad...............\\-(\sin x - \cos x)+C_{-1}, & \pi/4-2\pi\leq x<\pi/4-\pi\\ \sin x + \cos x +C_{0}, &\pi/4-\pi\leq x<\pi/4 \\ -(\sin x - \cos x)+C_{1}, &\pi/4\leq x<\pi/4+\pi \\\qquad...............\\ (-1)^n(\sin x + \cos x)+C_n,& \pi/4+(n-1)\pi\leq x< \pi/4 + n\pi \\ \qquad...............\end{cases}\]
+Поскольку первообразная непрерывна, то должно выполняться равенство \[I(\pi/4+k\pi)=I(\pi/4+k\pi-0),\; k\in\mathbb{Z} \]
+т.е. \[(-1)^{k+1}(\sin x_k + \cos x_k)+C_{k+1}=\lim \limits_{x \to x_k-0}(-1)^k(\sin x + \cos x)+C_k, \text{ где } x_k=\pi/4+k\pi, \: k\in \mathbb{Z}\]
+Отсюда приходим к равенству \(-\sqrt{2}+C_{k+1}=\sqrt{2}+C_k\). При \(k=0\) находим \(C_1=2\sqrt{2}+C_0\); далее, при \(k=1\) получаем \(C_2=2\sqrt{2}+C_1=2\cdot2\sqrt{2}+C_0\). С помощью метода математической индукции устанавливаем, что \(C_n=2\sqrt{2}n+C\), где \(C=C_0\) -- произвольная постоянная. 
+<br>
+Наконец, преобразуя неравенство \(\pi/4+(n-1)\pi\leq x< \pi/4+n\pi\) к виду \[n \leq \frac{x-\pi/4+\pi}{\pi}< n+1, \] 
+находим, что \[n=\left[  \frac{x-\pi/4+\pi}{\pi} \right].\]
+Таким образом, \[{\large \int_{}^{}}\!\sqrt{1-\sin 2x}dx= (-1)^{{\large \left[  \frac{x-\pi/4+\pi}{\pi} \right]}}(\sin x + \cos x)+2\sqrt{2}\left[  \frac{x-\pi/4+\pi}{\pi} \right]+C.\]
+График правильного ответа выглядит так (здесь \(C=0\)):
+<br> </div>
+<div id='box1' class='jxgbox' style='width:600px; height:400px;'></div>
+<div>
+<br>
+
+	</div> 
+<script>
+var board = JXG.JSXGraph.initBoard('box', {boundingbox: [-10, 10, 10, -10], axis:true, showCopyright:false});
+board.suspendUpdate();
+
+var f = function(x) {return -(Math.sin(2*x)*Math.sin(2*x)-1)/(Math.cos(2*x)*Math.sqrt(1-Math.sin(2*x)))};
+
+var graph = board.create('functiongraph', [f,-100, 100]);
+
+board.unsuspendUpdate();
+
+
+
+</script>
+
+<script>
+var board1 = JXG.JSXGraph.initBoard('box1', {boundingbox: [-10, 10, 10, -10], axis:true, showCopyright:false});
+board1.suspendUpdate();
+
+//var f1 = function(x) {return Math.pow(-1, Math.floor((x-(1/4)*Math.PI+Math.PI)/Math.PI)
+var f1 = function(x) {return Math.pow(-1, Math.floor((x-(1/4)*Math.PI+Math.PI)/Math.PI))*(Math.sin(x)+Math.cos(x))+2*Math.sqrt(2)*Math.floor((x-(1/4)*Math.PI+Math.PI)/Math.PI)};
+
+var graph1 = board1.create('functiongraph', [f1,-100, 100]);
+
+board1.unsuspendUpdate();
+</script>
+
+
+
+
+
+
+</body>
+</html>

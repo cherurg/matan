@@ -1,0 +1,61 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="../scripts/BoardGeneratorC.js"></script>
+		<script type="text/javascript" src="../scripts/parametersC.js"></script>
+		<script type="text/javascript" src="../scripts/linesC.js"></script>
+		<script type="text/javascript" src="../scripts/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="../stylesheets/rimanStyle.css">
+		<link rel="stylesheet" type="text/css" href="../stylesheets/jsxgraph.css">
+	</head>
+	
+	<body>
+		
+		<div id="pic"><img src="../images/0.gif"/></div>
+		<ul id="list-nav">
+			<li><a href="#" onclick="document.getElementById('page1').style.display =  'block'; document.getElementById('page0').style.display =  'none';">Graph</a></li>
+			<li><a href="#" onclick="document.getElementById('page0').style.display =  'block'; document.getElementById('page1').style.display =  'none';">Table</a></li>
+			<li><a href="#" onclick="shuffle();">Shuffle</a></li>
+			<li><a href="#" onclick="movePoints(x.slice());">Reset</a></li>
+		</ul>
+		
+		<br/><br/>
+		<div id='codeplace'></div>
+		<br/><br/>
+		
+		<div id='page1' style="display: block;">
+			<div id='jxgbox' class='jxgbox' style="position: absolute; z-index: 1; width: 98%; height: 80%"></div>
+		</div>
+		<div id='page0' style="display:none;"></div>
+		
+		
+		
+		<script type="text/javascript">
+		
+		CreateBoard();
+		
+		/*document.getElementById('codeplace').innerHTML = '';
+  
+		var o=document.createElement('div');
+		
+		func = function(x) { 
+			return Math.pow(-1, x+1)/Math.pow(x, 1.01);
+		}
+		
+		var t = 'var seq = [';
+		t += func(1);
+		for(i = 2; i <= 600; ++i) {
+			t += ', ' + func(i);
+		}
+		t += '];';
+		
+		o.innerHTML = t;
+		document.getElementById('codeplace').appendChild(o);*/
+			
+			
+			
+		</script>
+		
+	</body>
+	
+</html>

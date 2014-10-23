@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>Предел числовой последовательности</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+	<script type="text/javascript" src="./mathjax.js"></script>
+	<script type="text/javascript" src="./jquery-1.11.1.min.js"></script>
+	<script>
+	$(document).ready(function() {
+		$('.proof').append('<span></span>');
+		$('.post span').each(function() {
+			var trigger = $(this), state = false, el = trigger.parent().next('.entry');
+			trigger.click(function(){
+				state = !state;
+				el.slideToggle();
+				trigger.parent().parent().toggleClass('inactive');
+			});
+		});
+	});
+	</script>
+</head>
+<body>
+	<p align="right"><i><a href="Оглавление.html">Вернуться к оглавлению</a></i></p>
+	<h1>3. Предел числовой последовательности</h1>
+	<h2>Числовые последовательности</h2>
+	Отображение $\nat \mapsto X$ будем называть последовательностью и записывать как $x_1, x_2,\dots, x_n$. Отображение $\nat \mapsto \real$ будем называть <b>числовой последовательностью</b>.
+	<p>
+		Числовая последовательность называется <b>ограниченной сверху (снизу)</b>, если $\exists M \in \real\; (m \in \real): \forall n \in \nat \Rightarrow x_n \le M\; (x_n \ge m)$. Ч.п. $\{x_n\}$ <b>ограничена</b>, если $\exists A \in \real: \forall n \in \nat \Rightarrow |x_n| \le A$. 
+	</p><p>
+	Ч.п. $\{x_n\}$ ограничена тогда и только тогда, когда $\{x_n\}$ ограничена сверху и снизу. Ч.п. $\{x_n\}$ называется <b>неограниченной</b>, если $\forall A \in \real \; \exists n \in \nat : |x_n| > A$.
+</p>
+$\{x_n\}$ называется <b><i>бесконечно большой</i></b>, если
+$ \forall A \in \real \; \exists N(A): \forall n \ge N \Rightarrow |x_n| > A$. <b><i>Всякая бесконечно большая числовая последовательность является неограниченной, но обратное, вообще говоря, неверно.</i></b> Например, рассмотрим следующую неограниченную последовательность:
+$$x_n = \frac{n+(-1)^{n+1}\cdot n}{2}.$$
+Докажем, что $\exists A_0 \in \real : \forall N \; \exists n_0 \ge N \Rightarrow |x_{n_0}| < A_0$ (отрицание определения б.б.ч.п.). Можно предъявить
+$A_0 = 1: \forall N \in \nat \; \exists k_0 \ge N : |x_{2k_0}| = 0<1=A_0$.
+<p>
+	$\{x_n\}$ называется <b><i>бесконечно малой</i></b>, если
+	$ \forall \eps >0 \; \exists N(\eps): \forall n \ge N(\eps) \Rightarrow |x_n| < \eps$.
+</p>
+
+<div class="visual">
+	<span style="font-size: 14pt;"><b>Выберете последовательность:</b></span>
+	<table>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="0" checked>$x_n = \left\{\frac 12,\frac 13,\frac 23,\frac 14,\frac 24,\frac 34,\dots\right\}$ </td>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="1">$x_n = (-1)^n\cdot \left(1 + \frac 1n\right)$</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="2">$x_n = (-1)^n\cdot \left(1+\frac 1n\right)^n$</td>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="3">$x_n = \sin n$</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="4">
+			$\left\{
+			\begin{aligned}
+			x_n &= \left(1+\frac 1n\right)^n\\
+			y_n &= \sum_{i=0}^n \frac{1}{i!}
+			\end{aligned}	
+			\right.$</td>
+			<td>
+				<table>
+					<tr>
+						<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="5">$x_n = \left\{\frac 12,\frac 12,\frac 13,\frac 12,\frac 13,\frac 14,\dots\right\}$</td>
+					</tr>
+					<tr>
+						<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="6">$x_n = \left\{\frac 11-\frac 12,\frac 11-\frac 13,\frac 12-\frac 14,\frac 11-\frac 15,\frac 12-\frac 16,\frac 13-\frac 17,\dots\right\}$</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="7">$x_n = \left\{0, 1, -1 , 0, 1, -1, 0, 1, -1, 2, -2, 0, 1, -1, 2, -2, 3, -3,\dots\right\}$</td>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="8">$x_n = \frac{2+(-1)^n}{n}$</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="9">$x_n = \frac{1+(-1)^n}{n}$</td>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="10">$x_n = (-1)^n$</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="11">$x_n = (0.9)^n$</td>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="12">$x_n = \frac{(-1)^n}{n}$</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="13">$x_n = \frac{2}{\sqrt n}-\frac{n}{n+5} \cdot \sin\left(\frac{\pi n}{4}\right)$</td>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="14">$x_n = (-1)^n \cdot n^\frac 1n + \frac{2n+6}{n} \cdot \cos\left(\frac{\pi n}{5}\right)$</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="groupSettings" onchange="drawSequences.updateItem(this)" value="15">$x_n = \left(\cos\left(\frac{\pi n}{4}\right)\right)^{n+1} + \frac{n}{n+10} \cdot \sin\left(\frac{\pi n}{3}\right)$</td>
+		</tr>
+	</table>
+	<div id="Controls"></div>
+	<div id="Sequences"></div>    
+	<script src="./visualisations/sequences/d3.v2.min.js"></script>
+	<script src="./visualisations/sequences/PlotSkeleton.js"></script>
+	<script src="./visualisations/sequences/ControlSkeleton.js"></script>
+	<script src="./visualisations/sequences/drawSequences.js"></script>
+</div>
+
+<h2>Свойства бесконечно малых числовых последовательностей</h2>
+Пусть $\term \alpha$&nbsp;&mdash; бесконечно малая числовая последовательность.
+<ol>
+	<li>$\term \alpha$ <b>ограничена</b>.
+		<div id="proof_wrap">
+			<div class="post inactive">
+				<div class="proof"></div>
+				<div class="entry" style="display:none">
+					Как известно, $\forall \eps>0 \; \exists N(\eps): \forall n \ge N \Rightarrow |\alpha_n| < \eps$. Значит, для всех $n \ge N$ доказано. Но $\forall n < N \Rightarrow \alpha_n \le \max\{|\alpha_1|,|\alpha_2|,\dots,|\alpha_{N-1}|\}$. Тогда выберем $\eps = 1,\, A = \max\{|\alpha_1|,\dots,|\alpha_{N-1}|,1\} \Rightarrow \forall n \in \nat,\, |\alpha_n| \le A$.
+				</div>
+			</div>
+		</div>
+
+	</li>
+	<li>Если $\{y_n\}$ ограничена, то $\{\alpha_n\cdot y_n\}$&nbsp;&mdash; <b>бесконечно малая.</b>
+		<div id="proof_wrap">
+			<div class="post inactive">
+				<div class="proof"></div>
+				<div class="entry" style="display:none">
+					$\{\alpha_n\}$&nbsp;&mdash; бесконечно малая, поэтому $\forall \eps >0 \; \exists N(\eps): \forall n \ge N(\eps) \Rightarrow |\alpha_n| < \frac{\eps}{A}$. Ввиду ограниченности $\{y_n\}$, $\exists A: \forall n \in \nat \Rightarrow |y_n| \le A$. Но тогда $\{\alpha_n \cdot y_n\}: \forall \eps >0 \; \exists N(\eps): \forall n \ge N \Rightarrow |\alpha_n \cdot y_n| < \frac{\eps}{A} \cdot A = \eps$.
+				</div>
+			</div>
+		</div>
+
+	</li>
+	<li>Если $\term \beta$&nbsp;&mdash; бесконечно малая, то $\{\alpha_n \pm \beta_n\} \text{ и } \{\alpha_n \cdot \beta_n\}$&nbsp;&mdash; <b>бесконечно малые.</b>
+		<div id="proof_wrap">
+			<div class="post inactive">
+				<div class="proof"></div>
+				<div class="entry" style="display:none">
+					\begin{gather*}
+					\forall \eps >0 \; \exists N_1(\eps): \forall n \ge N_1 \Rightarrow |\alpha_n| < \frac{\eps}{2} \text{ и } \exists N_2(\eps): \forall n \ge N_2 \Rightarrow |\beta_n| < \frac{\eps}{2}.\\
+					\text{Тогда при } N = \max\{N_1,N_2\} \Rightarrow \forall n \ge N \Rightarrow |\alpha_n \pm \beta_n| \le |\alpha_n| + |\beta_n| < \frac{\eps}{2} + \frac{\eps}{2} = \eps.
+					\end{gather*}
+					Для произведения получаем аналогично:
+					\begin{gather*}
+					\forall \eps >0 \; \exists N_1(\eps): \forall n \ge N_1 \Rightarrow |\alpha_n| < \frac{1}{\eps} \text{ и } \exists N_2(\eps): \forall n \ge N_2 \Rightarrow |\beta_n| < \eps^2.\\
+					\text{Тогда при } N = \max\{N_1,N_2\} \Rightarrow \forall n \ge N \Rightarrow |\alpha_n \cdot \beta_n| = |\alpha_n| \cdot |\beta_n| < \frac{1}{\eps} \cdot \eps^2 = \eps.
+					\end{gather*}
+				</div>
+			</div>
+		</div>
+
+	</li>
+</ol>
+
+<h2>Связь бесконечно больших и бесконечно малых последовательностей</h2>
+<div class="theorem">
+	<span style="font-style: normal; font-weight: bold">Теорема 3.1</span>
+	Если $\{x_n\}$&nbsp;&mdash; бесконечно малая и $\forall n \in \nat \Rightarrow x_n \ne 0$, то $\left\{\frac{1}{x_n}\right\}$&nbsp;&mdash; бесконечно большая.
+</div>
+
+<div id="proof_wrap">
+	<div class="post inactive">
+		<div class="proof"></div>
+		<div class="entry" style="display:none">
+			$\forall \eps >0 \; \exists N(\eps): \forall n \ge N \Rightarrow |x_n| < \eps \Leftrightarrow \frac{1}{|x_n|} > \frac{1}{\eps} = A$.
+		</div>
+	</div>
+</div>
+
+<div class="theorem">
+	<span style="font-style: normal; font-weight: bold">Теорема 3.2</span>
+	Если $\{x_n\}$&nbsp;&mdash; бесконечно большая и $\forall n \in \nat \Rightarrow x_n \ne 0$, то $\left\{\frac{1}{x_n}\right\}$&nbsp;&mdash; бесконечно малая.
+</div>
+
+<div id="proof_wrap">
+	<div class="post inactive">
+		<div class="proof"></div>
+		<div class="entry" style="display:none">
+			$\forall A >0 \; \exists N(A): \forall n \ge N \Rightarrow |x_n| > A \Leftrightarrow \frac{1}{|x_n|} < \frac{1}{A} = \eps$.
+		</div>
+	</div>
+</div>
+
+
+<h2>Предел числовой последовательности</h2>
+Назовем <i>окрестностью</i> точки $a \in \real$ любой интервал, содержащий эту точку, и будем обозначать ее как $\mathrm U(a)$. $\mathrm U_\eps(a) = (a-\eps; a+\eps)$&nbsp;&mdash; симметричная $\eps$-окрестность. $\mathrm U'_\eps(a) = (a-\eps;a) \cup (a;a+\eps) = \overset{0}{\mathrm U}_\eps = \mathrm U_\eps \setminus \{a\}$&nbsp;&mdash; проколотая.
+
+Будем говорить, что числовая последовательность $\{x_n\}$ имеет <b>предел, равный $a$</b>, если
+\begin{align}
+\cllim x_n &= a \Leftrightarrow \forall \mathrm U_\eps(a) \; \exists N(\mathrm U_\eps(a)): \forall n \ge N \Rightarrow x_n \in \mathrm U_\eps(a).\\
+\cllim x_n &= a \Leftrightarrow \forall \eps >0 \; \exists N(\eps): \forall n \ge N \Rightarrow |x_n - a| < \eps.
+\end{align}
+<div class="theorem">
+	<span style="font-style: normal; font-weight: bold">Теорема 3.3</span>
+	Оба определения предела числовой последовательности эквивалентны.
+</div>
+
+<div id="proof_wrap">
+	<div class="post inactive">
+		<div class="proof"></div>
+		<div class="entry" style="display:none">
+			<p>
+				Рассмотрим 1-ое определение. Если $x_n \in \mathrm U_\eps(a)$, то $a-\eps < x_n < a+\eps \Leftrightarrow -\eps < x_n - a < \eps \Rightarrow |x_n - a| < \eps$.
+			</p>
+			Теперь рассмотрим 2-ое определение. Если $|x_n - a| < \eps$, то $a-\eps < x_n < a+\eps$, т.е. $x_n \in \mathrm U_\eps(a)$.
+		</div>
+	</div>
+</div>
+
+Заметим, что оба определения предела фактически говорят о том, что последовательность $\{x_n-a\}$&nbsp;&mdash; бесконечно малая.
+
+Если существует $\cllim x_n = a <\infty$, то $\{x_n\}$&nbsp;&mdash; <b>сходящаяся</b> последовательность. Иначе, если не существует $\cllim x_n \text{ или } \cllim x_n = \infty$, то $\{x_n\}$&nbsp;&mdash; <b>расходящаяся</b>. Используя отрицание определения: $\{x_n\}$&nbsp;&mdash; расходится $\Leftrightarrow \forall a \in \real \; \exists \eps_0 > 0: \forall N \in \nat \; \exists n_0 \ge N: |x_n - a| \ge \eps_0.$</body>
+</html>

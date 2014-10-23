@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jsxgraph/0.97/jsxgraphcore.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jsxgraph.uni-bayreuth.de/distrib/jsxgraph.css" />
+  <script type="text/javascript"
+	src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+
+	<script type="text/javascript"
+	src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+	</script>
+	<link rel="stylesheet" href="/wiki/skins/monobook/IE70Fixes.css?270" media="screen" />
+	<style>
+   h1 {
+      font-size: 100%; /* Размер шрифта в процентах */ 
+   } 
+   </style>
+</head>
+<body>
+
+<div id="my_text">
+		
+		<h3>Теорема Ролля</h3>
+		<b><i>Формулировка.</i></b> Пусть: <i>1)</i> функция \(f(x)\) определена и непрерывна на отрезке \([a, b]\);<i>2)</i> существует конечная производная \(f'(x)\) на интервале \((a, b)\); <i>3)</i> на концах отрезка \([a, b]\) функция принимает равные значения: \(f(a)=f(b)\). Тогда найдется такая точка \(c\in(a, b)\), что \( f'(c)=0\).
+		<br>
+		<br>
+		На данном графике приведена геометрическая трактовка данной теоремы: если крайние ординаты кривой \(y=f(x)\) равны, то на кривой найдется точка (т.\(C\)), где касательная параллельна оси абсцисс. 
+		<br>
+		<br>
+		Ниже строится многочлен Лагранжа по 4-м точкам, две из которых (т.\(A\) и т.\(B\)) можно задать вручную (они определяют границы промежутка \([a,b]\) и оридинату), а точки \(D\) и \(E\) можно двигать.
+		Для изменения размера графика, используйте колесико мыши. Для его передвижения удерживайте кнопку shift и перетаскивайте. Также можно использовать кнопки в правом нижнем углу графика.
+	
+</div>
+
+\(\:a\quad=\qquad\)<input type="text" id="eingabeAx" value="-2">
+<br>
+\(\:b\quad=\qquad\)<input type="text" id="eingabeBx" value="4">
+<br>
+Ордината=<input type="text" id="eingabeAy" value="3">
+
+
+<input type="button" value="set" onClick="doIt()"> 
+<div id='box' class='jxgbox' style='width:600px; height:400px;'></div>
+ <script>
+	var board = JXG.JSXGraph.initBoard('box', {boundingbox: [-5, 10, 7, -6],zoom : {factorX : 1.5,factorY : 1.5,wheel: true}, axis:true, showCopyright:false});
+	board.suspendUpdate();
+
+	eval("ax="+document.getElementById("eingabeAx").value+";");
+	eval("ay="+document.getElementById("eingabeAy").value+";");
+	eval("bx="+document.getElementById("eingabeBx").value+";");
+	
+	var p = [];
+	p[0] = board.create('point', [ax,ay], {size:4,face:'x',fixed:true});
+	p[1] = board.create('point', [bx,ay], {size:4,face:'x',fixed:true});
+	p[2] = board.create('point', [-1.5,0], {name:'D', size:1 });
+	p[3] = board.create('point', [2,5], {name:'E', size:1} );
+	
+	var f = JXG.Math.Numerics.lagrangePolynomial(p);
+	var graph = board.create('functiongraph', [f, -10, 10]);
+	var C = board.create('glider', [function() { return JXG.Math.Numerics.root(JXG.Math.Numerics.D(f),(p[0].X()+p[1].X())*0.5); },
+                                function() { return f(JXG.Math.Numerics.root(JXG.Math.Numerics.D(f),(p[0].X()+p[1].X())*0.5)); },graph], 
+                                {strokeColor:'#990099', name:'C',size:3});
+	var t = board.create('tangent', [C], {strokeColor:'#990099'});
+	line = board.create('line',[p[0],p[1]],{strokeColor:'#ff0000',dash:2});
+	board.unsuspendUpdate();
+	function doIt() //при нажатии на кнопку 
+   {
+		
+	eval("ax="+document.getElementById("eingabeAx").value+";");
+	eval("ay="+document.getElementById("eingabeAy").value+";");
+	eval("bx="+document.getElementById("eingabeBx").value+";");
+    
+	//graph.updateCurve()
+		
+	board.removeObject(p[0]);
+	board.removeObject(p[1]);
+	
+	board.removeObject(graph);
+	
+	p[0] = board.create('point', [ax,ay], {size:4,face:'x',fixed:true});
+	p[1] = board.create('point', [bx,ay], {size:4,face:'x',fixed:true});
+	f = JXG.Math.Numerics.lagrangePolynomial(p);
+	graph = board.create('functiongraph', [f, -10, 10]);
+	
+	
+	line = board.create('line',[p[0],p[1]],{strokeColor:'#ff0000',dash:2}); //хорда ab
+
+	C = board.create('glider', [function() { return JXG.Math.Numerics.root(JXG.Math.Numerics.D(f),(p[0].X()+p[1].X())*0.5); },
+                                function() { return f(JXG.Math.Numerics.root(JXG.Math.Numerics.D(f),(p[0].X()+p[1].X())*0.5)); },graph], 
+                                {strokeColor:'#990099', name:'C',size:3});
+				
+	board.removeObject(t);
+	t = board.create('tangent', [C], {strokeColor:'#990099'}); //касательная
+		
+	board.update();	
+    } 
+  </script>
+ <h1>Литература</h1>
+ <hr>
+  Фихтенгольц Г. М. Основы математического анализа, Том 1, стр.178-179, Наука, 1968
+  <br>
+  <h1>Ссылки</h1>
+ <hr>
+ Для создания данной страницы был частично взят код со следующих страниц:
+ <br>
+ <a href="http://jsxgraph.uni-bayreuth.de/wiki/index.php/Rolle%27s_Theorem">http://jsxgraph.uni-bayreuth.de/wiki/index.php/Rolle%27s_Theorem</a>
+ <br>
+ <a href="http://jsxgraph.uni-bayreuth.de/wiki/index.php/Even_simpler_function_plotter">
+ http://jsxgraph.uni-bayreuth.de/wiki/index.php/Even_simpler_function_plotter</a>
+</body>
+</html>

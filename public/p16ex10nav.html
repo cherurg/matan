@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>16.10</title>
+<!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<meta name = "keywords" content = "">
+<meta name = "description" content = "">
+<meta charset = "utf-8">
+<link rel = "stylesheet" href = "stylesheets/style.css">
+<script src = "scripts/mousetrap.min.js"></script>
+ 
+<script type = "text/javascript">
+// управление построением графика
+var func_num = 1;
+var start_point = -100;
+var xpos = start_point;
+
+var deriv_num = 0;
+var max_deriv_num = 30;
+
+var scale_mult = 3;
+var scale_mult_up = 3;
+
+var width_global = 800;
+var height_global = 800;
+
+Mousetrap.bind('space', function() { 
+	if (deriv_num < max_deriv_num) {
+		deriv_num = deriv_num + 1;
+	}
+	draw();
+}, 'keydown');
+
+Mousetrap.bind('q', function() { 
+	if (deriv_num > 0) {
+		deriv_num = deriv_num - 1;
+	}
+	draw();
+}, 'keydown');
+
+function funcValue(x) { 
+	x = x/scale_mult;
+	return scale_mult_up*Math.exp(-1/(5*x*x));
+}
+
+function currentDerValue(x) {
+	x = x/scale_mult;
+	if (deriv_num <= 0) {
+		return funcValue(x*scale_mult);
+	} else if (deriv_num == 1) {
+		return scale_mult_up*(2*Math.exp(-1/(5*Math.pow(x, 2))))/(5*Math.pow(x, 3));
+	} else if (deriv_num == 2) {
+		return scale_mult_up*(Math.exp(-1/(5*Math.pow(x, 2)))*(4-30*Math.pow(x, 2)))/(25*Math.pow(x, 6));
+	} else if (deriv_num == 3) {
+		return scale_mult_up*(4*Math.exp(-1/(5*Math.pow(x, 2)))*(2-45*Math.pow(x, 2)+150*Math.pow(x, 4)))/(125*Math.pow(x, 9));
+	} else if (deriv_num == 4) {
+		return -scale_mult_up*(4*Math.exp(-1/(5*Math.pow(x, 2)))*(-4+180*Math.pow(x, 2)-1875*Math.pow(x, 4)+3750*Math.pow(x, 6)))/(625*Math.pow(x, 12));
+	} else if (deriv_num == 5) {
+		return scale_mult_up*(8*Math.exp(-1/(5*Math.pow(x, 2)))*(4-300*Math.pow(x, 2)+6375*Math.pow(x, 4)-41250*Math.pow(x, 6)+56250*Math.pow(x, 8)))/(3125*Math.pow(x, 15));
+	} else if (deriv_num == 6) {
+		return -scale_mult_up*(8*Math.exp(-1/(5*Math.pow(x,2)))*(-8+900*Math.pow(x,2)-32250*Math.pow(x,4)+433125*Math.pow(x,6)-1968750*Math.pow(x,8)+1968750*Math.pow(x,10)))/(15625*Math.pow(x,18));
+	} else if (deriv_num == 7) {
+		return scale_mult_up*(16*Math.exp(-1/(5*Math.pow(x, 2)))*(39375000*Math.pow(x, 12)-51187500*Math.pow(x, 10)+14962500*Math.pow(x, 8)-1561875*Math.pow(x, 6)+68250*Math.pow(x, 4)-1260*Math.pow(x, 2)+8))/(78125*Math.pow(x, 21));
+	} else if (deriv_num == 8) {
+		return scale_mult_up*(16*Math.exp(-1/(5*Math.pow(x, 2)))*(1771875000*Math.pow(x, 14)-2894062500*Math.pow(x, 12)+1074937500*Math.pow(x, 10)-147065625*Math.pow(x, 8)+8925000*Math.pow(x, 6)-256200*Math.pow(x, 4)+3360*Math.pow(x, 2)-16))/(390625*Math.pow(x, 24));
+	} else if (deriv_num == 9) {
+		return scale_mult_up*(32*Math.exp(-1/(5*Math.pow(x, 2)))*(44296875000*Math.pow(x, 16)-88593750000*Math.pow(x, 14)+40516875000*Math.pow(x, 12)-6957562500*Math.pow(x, 10)+548690625*Math.pow(x, 8)-21735000*Math.pow(x, 6)+441000*Math.pow(x, 4)-4320*Math.pow(x, 2)+16))/(1953125*Math.pow(x, 27));
+	} else if (deriv_num == 10) {
+		return -scale_mult_up*(32*Math.exp(-1/(5*Math.pow(x, 2)))*(2436328125000*Math.pow(x, 18)-5847187500000*Math.pow(x, 16)+3215953125000*Math.pow(x, 14)-672426562500*Math.pow(x, 12)+66040734375*Math.pow(x, 10)-3379556250*Math.pow(x, 8)+94185000*Math.pow(x, 6)-1422000*Math.pow(x, 4)+10800*Math.pow(x, 2)-32))/(9765625*Math.pow(x, 30));
+	} else if (deriv_num == 11) {
+		return scale_mult_up*64*Math.exp(-1/(5*Math.pow(x, 2)))*(73089843750000*Math.pow(x, 20)-207087890625000*Math.pow(x, 18)+134485312500000*Math.pow(x, 16)-33475148437500*Math.pow(x, 14)+3974463281250*Math.pow(x, 12)-251916328125*Math.pow(x, 10)+9030656250*Math.pow(x, 8)-186615000*Math.pow(x, 6)+2178000*Math.pow(x, 4)-13200*Math.pow(x, 2)+32)/(48828125*Math.pow(x, 33));
+	} else if (deriv_num == 12) {
+		return -scale_mult_up*(64*Math.exp(-1/(5*Math.pow(x, 2))))*(4750839843750000*Math.pow(x, 22) -15677771484375000*Math.pow(x, 20)+11845427343750000*Math.pow(x, 18)-3449109726562500*Math.pow(x, 16)+484268941406250*Math.pow(x, 14)-36919304296875*Math.pow(x, 12)+1632664687500*Math.pow(x, 10)-43254337500*Math.pow(x, 8)+689040000*Math.pow(x, 6)-6402000*Math.pow(x, 4)+31680*Math.pow(x, 2)-64)/(244140625*Math.pow(x, 36));
+	} else if (deriv_num == 13) {
+		return scale_mult_up*(128*Math.exp(-1/(5*Math.pow(x,2)))*(166279394531250000*Math.pow(x,24)-631861699218750000*Math.pow(x,22)+548722001953125000*Math.pow(x,20)-184300913671875000*Math.pow(x,18)+30083901503906250*Math.pow(x,16)-2699427199218750*Math.pow(x,14)+143042508984375*Math.pow(x,12)-4660468312500*Math.pow(x,10)+94932337500*Math.pow(x,8)-1201200000*Math.pow(x,6)+9094800*Math.pow(x,4)-37440*Math.pow(x,2)+64))/(1220703125*Math.pow(x,39));
+	} else if (deriv_num == 14) {
+		return -scale_mult_up*(128*Math.exp(-1/(5*Math.pow(x,2)))*(12470954589843750000*Math.pow(x,26)-54040803222656250000*Math.pow(x,24)+53392313583984375000*Math.pow(x,22)-20449039939453125000*Math.pow(x,20)+3828250500292968750*Math.pow(x,18)-397596202910156250*Math.pow(x,16)+24709593111328125*Math.pow(x,14)-961852923281250*Math.pow(x,12)+24035448937500*Math.pow(x,10)-388062675000*Math.pow(x,8)+3993990000*Math.pow(x,6)-25116000*Math.pow(x,4)+87360*Math.pow(x,2)-128))/(6103515625*Math.pow(x,42));
+	} else if (deriv_num == 15) {
+		return scale_mult_up*(256*Math.exp(-1/(5*Math.pow(x,2)))*(498838183593750000000*Math.pow(x,28)-2444307099609375000000*Math.pow(x, 26)+2723656482421875000000*Math.pow(x,24)-1178089510253906250000*Math.pow(x,22)+250144069957031250000*Math.pow(x,20)-29672003689453125000*Math.pow(x,18)+2127267720703125000*Math.pow(x,16)-96848562357421875*Math.pow(x,14)+2884688838281250*Math.pow(x,12)-57020776312500*Math.pow(x,10)+747521775000*Math.pow(x,8)-6380010000*Math.pow(x,6)+33852000*Math.pow(x,4)-100800*Math.pow(x,2)+128))/(30517578125*Math.pow(x, 45));
+	} else if (deriv_num == 16) {
+		return -scale_mult_up*(256*Math.exp(-1/(5*Math.pow(x,2)))*(42401245605468750000000*Math.pow(x,30)-233206850830078125000000*Math.pow(x,28)+290872544853515625000000*Math.pow(x,26)-140927606644042968750000*Math.pow(x,24)+33624187765136718750000*Math.pow(x,22)-4506008637990234375000*Math.pow(x,20)+367797826880859375000*Math.pow(x,18)-19266062606806640625*Math.pow(x,16)+669670783031250000*Math.pow(x,14)-15748013531250000*Math.pow(x,12)+252333081000000*Math.pow(x,10)-2739145500000*Math.pow(x,8)+19699680000*Math.pow(x,6)-89376000*Math.pow(x,4)+230400*Math.pow(x,2)-256))/(152587890625*Math.pow(x,48));
+	} else if (deriv_num == 17) {
+		return scale_mult_up*(512*Math.exp(-1/(5*Math.pow(x,2)))*(1908056052246093750000000*Math.pow(x,32)-11702743787109375000000000*Math.pow(x,30)+16231196817773437500000000*Math.pow(x,28)-8746528943496093750000000*Math.pow(x,26)+2326499811377929687500000*Math.pow(x,24)-349044792424453125000000*Math.pow(x,22)+32090845654054687500000*Math.pow(x,20)-1909082835425390625000*Math.pow(x,18)+76188079164462890625*Math.pow(x,16)-2086992000843750000*Math.pow(x,14)+39719656226250000*Math.pow(x,12)-526247631000000*Math.pow(x,10)+4807611900000*Math.pow(x,8)-29531040000*Math.pow(x,6)+115872000*Math.pow(x,4)-261120*Math.pow(x,2)+256))/(762939453125*Math.pow(x,51));
+	} else if (deriv_num == 18) {
+		return -scale_mult_up*(512*Math.exp(-1/(5*Math.pow(x,2)))*(181265324963378906250000000*Math.pow(x,34)-1232604209750976562500000000*Math.pow(x,32)+1889993121618164062500000000*Math.pow(x,30)-1125778511572558593750000000*Math.pow(x,28)+331570532423012695312500000*Math.pow(x,26)-55264494524301562500000000*Math.pow(x,24)+5672170661227382812500000*Math.pow(x,22)-379180359153298828125000*Math.pow(x,20)+17151079524631787109375*Math.pow(x,18)-538469678485019531250*Math.pow(x,16)+11919316965806250000*Math.pow(x,14)-187320076807500000*Math.pow(x,12)+2086131820500000*Math.pow(x,10)-16259707800000*Math.pow(x,8)+86292000000*Math.pow(x,6)-295718400*Math.pow(x,4)+587520*Math.pow(x,2)-512))/(3814697265625*Math.pow(x,54));
+	} else if (deriv_num == 19) {
+		return scale_mult_up*(1024*Math.exp(-1/(5*Math.pow(x,2)))*(9063266248168945312500000000*Math.pow(x,36)-67974496861267089843750000000*Math.pow(x,34)+114632191506840820312500000000*Math.pow(x,32)-75065596373834472656250000000*Math.pow(x,30)+24335715781183447265625000000*Math.pow(x,28)-4476407621745629882812500000*Math.pow(x,26)+509038147422492187500000000*Math.pow(x,24)-37902501189257783203125000*Math.pow(x,22)+1922777516370159667968750*Math.pow(x,20)-68305698980708642578125*Math.pow(x,18)+1730401375065644531250*Math.pow(x,16)-31587925030593750000*Math.pow(x,14)+416794577062500000*Math.pow(x,12)-3955998217500000*Math.pow(x,10)+26614747800000*Math.pow(x,8)-123256800000*Math.pow(x,6)+372096000*Math.pow(x,4)-656640*Math.pow(x,2)+512))/(19073486328125*Math.pow(x,57));
+	} else if (deriv_num == 20) {
+		return -scale_mult_up*(1024*Math.exp(-1/(5*Math.pow(x,2)))*(951642956057739257812500000000*Math.pow(x,38)-7835193671542053222656250000000*Math.pow(x,36)+14464972932077636718750000000000*Math.pow(x,34)-10363119893481335449218750000000*Math.pow(x,32)+3678809981019268798828125000000*Math.pow(x,30)-742514612932939526367187500000*Math.pow(x,28)+92944109568202470703125000000*Math.pow(x,26)-7651014002965096435546875000*Math.pow(x,24)+431518842906995104980468750*Math.pow(x,22)-17165166333978504638671875*Math.pow(x,20)+491343679849874414062500*Math.pow(x,18)-10252206631708945312500*Math.pow(x,16)+156954629900250000000*Math.pow(x,14)-1763248735237500000*Math.pow(x,12)+14432609646000000*Math.pow(x,10)-84659979600000*Math.pow(x,8)+345119040000*Math.pow(x,6)-924768000*Math.pow(x,4)+1459200*Math.pow(x,2)-1024))/(95367431640625*Math.pow(x,60));
+	} else if (deriv_num == 21) {
+		return scale_mult_up*(2048*Math.exp(-1/(5*Math.pow(x,2)))*(52340362583175659179687500000000*Math.pow(x,40)-471063263248580932617187500000000*Math.pow(x,38)+948058434256588439941406250000000*Math.pow(x,36)-739883365475771118164062500000000*Math.pow(x,34)+286273868469926495361328125000000*Math.pow(x,32)-63079979015654430908203125000000*Math.pow(x,30)+8642763926230149536132812500000*Math.pow(x,28)-781535369835061149902343750000*Math.pow(x,26)+48645304079129631408691406250*Math.pow(x,24)-2148035476304845568847656250*Math.pow(x,22)+68756252718215318115234375*Math.pow(x,20)-1619086409337858398437500*Math.pow(x,18)+28301989070237695312500*Math.pow(x,16)-368544478128750000000*Math.pow(x,14)+3567324940987500000*Math.pow(x,12)-25438406994000000*Math.pow(x,10)+131251050000000*Math.pow(x,8)-474586560000*Math.pow(x,6)+1136352000*Math.pow(x,4)-1612800*Math.pow(x,2)+1024))/(476837158203125*Math.pow(x,63));
+	} else if (deriv_num == 22) {
+		return -scale_mult_up*(2048*Math.exp(-1/(5*Math.pow(x,2)))*(6019141697065200805664062500000000*Math.pow(x,42)-58987588631238967895507812500000000*Math.pow(x,40)+128930015151136601257324218750000000*Math.pow(x,38)-109179204862499989013671875000000000*Math.pow(x,36)+45852216343790149017333984375000000*Math.pow(x,34)-10980744274522834090576171875000000*Math.pow(x,32)+1638643645121585030639648437500000*Math.pow(x,30)-161869571271946611804199218750000*Math.pow(x,28)+11048905035100400424499511718750*Math.pow(x,26)-537637880800752604431152343750*Math.pow(x,24)+19078665287025984532470703125*Math.pow(x,22)-501806947537448775878906250*Math.pow(x,20)+9889140250181575195312500*Math.pow(x,18)-146897375282019140625000*Math.pow(x,16)+1646756816209312500000*Math.pow(x,14)-13875827735385000000*Math.pow(x,12)+86970852738000000*Math.pow(x,10)-397759269600000*Math.pow(x,8)+1284396960000*Math.pow(x,6)-2764608000*Math.pow(x,4)+3548160*Math.pow(x,2)-2048))/(2384185791015625*Math.pow(x,66));
+	} else if (deriv_num == 23) {
+		return scale_mult_up*(4096*Math.exp(-1/(5*Math.pow(x,2)))*(361148501823912048339843750000000000*Math.pow(x,44)-3840212402727598114013671875000000000*Math.pow(x,42)+9084088649210801055908203125000000000*Math.pow(x,40)-8317370379838635777282714843750000000*Math.pow(x,38)+3777356512365711910400390625000000000*Math.pow(x,36)-979215479678231046716308593750000000*Math.pow(x,34)+158458672335465486848144531250000000*Math.pow(x,32)-17016252915956513152038574218750000*Math.pow(x,30)+1266760074781986654254150390625000*Math.pow(x,28)-67500882519179423889770507812500*Math.pow(x,26)+2636291062373610903002929687500*Math.pow(x,24)-76786464253832593758544921875*Math.pow(x,22)+1688503777559237799316406250*Math.pow(x,20)-28251312160433967773437500*Math.pow(x,18)+360975761389229765625000*Math.pow(x,16)-3519993560486287500000*Math.pow(x,14)+26051747118705000000*Math.pow(x,12)-144645946830000000*Math.pow(x,10)+590418813600000*Math.pow(x,8)-1712911200000*Math.pow(x,6)+3332313600*Math.pow(x,4)-3886080*Math.pow(x,2)+2048))/(11920928955078125*Math.pow(x,69));
+	} else if (deriv_num == 24) {
+		return -scale_mult_up*(4096*Math.exp(-1/(5*Math.pow(x,2)))*(45143562727989006042480468750000000000*Math.pow(x,46)-519150971371873569488525390625000000000*Math.pow(x,44)+1324873278941021349334716796875000000000*Math.pow(x,42)-1307360586173410147590637207031250000000*Math.pow(x,40)+639898565300019736770629882812500000000*Math.pow(x,38)-178917421968421856996154785156250000000*Math.pow(x,36)+31273285341417577160339355468750000000*Math.pow(x,34)-3635086663282451038343811035156250000*Math.pow(x,32)+293718321162220290426177978515625000*Math.pow(x,30)-17046209891187549444808959960937500*Math.pow(x,28)+728167254072421300955200195312500*Math.pow(x,26)-23317401224397881339263916015625*Math.pow(x,24)+567256354009678448349609375000*Math.pow(x,22)-10581092156029137380859375000*Math.pow(x,20)+152161201089013823437500000*Math.pow(x,18)-1689949751912188593750000*Math.pow(x,16)+14464735049803500000000*Math.pow(x,14)-94774048552260000000*Math.pow(x,12)+469369631808000000*Math.pow(x,10)-1720404655200000*Math.pow(x,8)+4508824320000*Math.pow(x,6)-7966464000*Math.pow(x,4)+8478720*Math.pow(x,2)-4096))/(59604644775390625*Math.pow(x,72));
+	} else if (deriv_num == 25) {
+		return scale_mult_up*(8192*Math.exp(-1/(5*Math.pow(x,2)))*(2934331577319285392761230468750000000000*Math.pow(x,48)-36385711558759138870239257812500000000000*Math.pow(x,46)+99884646891948474769592285156250000000000*Math.pow(x,44)-105913720172813833156585693359375000000000*Math.pow(x,42)+55698738636675087773094177246093750000000*Math.pow(x,40)-16742466542457986866424560546875000000000*Math.pow(x,38)+3149879529403091687228393554687500000000*Math.pow(x,36)-394781951669662680994720458984375000000*Math.pow(x,34)+34475510385315581533092498779296875000*Math.pow(x,32)-2168801409192850729355163574218750000*Math.pow(x,30)+100785444109515999054656982421875000*Math.pow(x,28)-3526255401000167061666870117187500*Math.pow(x,26)+94224445475607687382965087890625*Math.pow(x,24)-1942798334293466307861328125000*Math.pow(x,22)+31122854303046003544921875000*Math.pow(x,20)-388754166356720226562500000*Math.pow(x,18)+3787336334133696093750000*Math.pow(x,16)-28680842332642500000000*Math.pow(x,14)+167526341482500000000*Math.pow(x,12)-744634376640000000*Math.pow(x,10)+2464360668000000*Math.pow(x,8)-5863123200000*Math.pow(x,6)+9450240000*Math.pow(x,4)-9216000*Math.pow(x,2)+4096))/(298023223876953125*Math.pow(x,75));
+	}else if (deriv_num == 26) {
+		return -scale_mult_up*(8192*Math.exp(-1/(5*Math.pow(x,2)))*(396134762938103528022766113281250000000000*Math.pow(x,50)-5281796839174713706970214843750000000000000*Math.pow(x,48)+15554891691369531867027282714843750000000000*Math.pow(x,46)-17675533122298179420375823974609375000000000*Math.pow(x,44)+9959106701763768026604652404785156250000000*Math.pow(x,42)-3208753787628077745834732055664062500000000*Math.pow(x,40)+647711441318518852742385864257812500000000*Math.pow(x,38)-87230059151087032978374481201171875000000*Math.pow(x,36)+8201798636182175391604328155517578125000*Math.pow(x,34)-556931337839022577171096801757812500000*Math.pow(x,32)+28022182184121961236554718017578125000*Math.pow(x,30)-1065503461464072928217697143554687500*Math.pow(x,28)+31079744398280294405989837646484375*Math.pow(x,26)-703290449538983946349182128906250*Math.pow(x,24)+12444381601924583590576171875000*Math.pow(x,22)-173040646017757271660156250000*Math.pow(x,20)+1894772551282880800781250000*Math.pow(x,18)-16322329579723354687500000*Math.pow(x,16)+110132482232272500000000*Math.pow(x,14)-577058855373000000000*Math.pow(x,12)+2314829577060000000*Math.pow(x,10)-6951498840000000*Math.pow(x,8)+15081081600000*Math.pow(x,6)-22264320000*Math.pow(x,4)+19968000*Math.pow(x,2)-8192))/(1490116119384765625*Math.pow(x,78));
+	} else if (deriv_num == 27) {
+		return scale_mult_up*(16384*Math.exp(-1/(5*Math.pow(x,2)))*(27729433405667246961593627929687500000000000*Math.pow(x,52)-396530897701041631550788879394531250000000000*Math.pow(x,50)+1249673132148737263069152832031250000000000000*Math.pow(x,48)-1517975207086714782598972320556640625000000000*Math.pow(x,46)+913995136281037301814794540405273437500000000*Math.pow(x,44)-314790716526431153880904197692871093750000000*Math.pow(x,42)+67979897919479963020073318481445312500000000*Math.pow(x,40)-9806867652182657315471706390380859375000000*Math.pow(x,38)+989427909131126326054850578308105468750000*Math.pow(x,36)-72248902487669771766280460357666015625000*Math.pow(x,34)+3919593199933657925557662963867187500000*Math.pow(x,32)-161210114867131077263766860961914062500*Math.pow(x,30)+5105870233240511200996376037597656250*Math.pow(x,28)-126023955086043127163129425048828125*Math.pow(x,26)+2445503873808425649029846191406250*Math.pow(x,24)-37535275274499387981298828125000*Math.pow(x,22)+457256528710189391777343750000*Math.pow(x,20)-4424733636140000777343750000*Math.pow(x,18)+33943526736886954687500000*Math.pow(x,16)-205347193368817500000000*Math.pow(x,14)+970579883473200000000*Math.pow(x,12)-3531341874060000000*Math.pow(x,10)+9666093528000000*Math.pow(x,8)-19199980800000*Math.pow(x,6)+26058240000*Math.pow(x,4)-21565440*Math.pow(x,2)+8192))/(7450580596923828125*Math.pow(x,81));
+	} else if (deriv_num == 28) {
+		return -scale_mult_up*(16384*Math.exp(-1/(5*Math.pow(x,2)))*(4020767843821750809431076049804687500000000000*Math.pow(x,54)-61517748010472787384295463562011718750000000000*Math.pow(x,52)+206989128599943731669511795043945312500000000000*Math.pow(x,50)-268145007504472561480958461761474609375000000000*Math.pow(x,48)+172125050626165330400934934616088867187500000000*Math.pow(x,46)-63212179995216149610405907630920410156250000000*Math.pow(x,44)+14565460506546254726876838684082031250000000000*Math.pow(x,42)-2244436341058231248866563510894775390625000000*Math.pow(x,40)+242235014858868737993284792900085449218750000*Math.pow(x,38)-18957347902864649017185609340667724609375000*Math.pow(x,36)+1104798138959085735294188346862792968750000*Math.pow(x,34)-48947765690985740553375875473022460937500*Math.pow(x,32)+1675475841542997622791573371887207031250*Math.pow(x,30)-44868328115142882371853343963623046875*Math.pow(x,28)+949016514207487564299765014648437500*Math.pow(x,26)-15963913953594170752542846679687500*Math.pow(x,24)+214533791805606540454687500000000*Math.pow(x,22)-2308304152804479028417968750000*Math.pow(x,20)+19881113461768261828125000000*Math.pow(x,18)-136678363252327771875000000*Math.pow(x,16)+745544446535889000000000*Math.pow(x,14)-3194786132237700000000*Math.pow(x,12)+10590807885840000000*Math.pow(x,10)-26532179856000000*Math.pow(x,8)+48432384000000*Math.pow(x,6)-60634828800*Math.pow(x,4)+46448640*Math.pow(x,2)-16384))/(37252902984619140625*Math.pow(x,84));
+	} else if (deriv_num == 29) {
+		return scale_mult_up*(32768*Math.exp(-1/(5*Math.pow(x,2)))*(301557588286631310707330703735351562500000000000*Math.pow(x,56)-4925440608681644741553068161010742187500000000000*Math.pow(x,54)+17655593679005689979292798042297363281250000000000*Math.pow(x,52)-24340039804002474264955773353576660156250000000000*Math.pow(x,50)+16620024816990178949569777250289916992187500000000*Math.pow(x,48)-6493343050147780291441525697708129882812500000000*Math.pow(x,46)+1592585533182572895932473969459533691406250000000*Math.pow(x,44)-261453458022951692102198824882507324218750000000*Math.pow(x,42)+30101463049828136118094314694404602050781250000*Math.pow(x,40)-2517116763202626620055557913780212402343750000*Math.pow(x,38)+157057115272750365928959152698516845703125000*Math.pow(x,36)-7468007678787232007233052158355712890625000*Math.pow(x,34)+275137004299290419630238280677795410156250*Math.pow(x,32)-7957041777663001154851041526794433593750*Math.pow(x,30)+182475722675228579195319271087646484375*Math.pow(x,28)-3343603607246613177181192016601562500*Math.pow(x,26)+49216651683463184523019409179687500*Math.pow(x,24)-583862456254323185001562500000000*Math.pow(x,22)+5588687873996242230058593750000*Math.pow(x,20)-43116435214663983046875000000*Math.pow(x,18)+267148641396108346875000000*Math.pow(x,16)-1320605950338675000000000*Math.pow(x,14)+5154085591118100000000*Math.pow(x,12)-15631922058480000000*Math.pow(x,10)+35976494736000000*Math.pow(x,8)-60559349760000*Math.pow(x,6)+70156800000*Math.pow(x,4)-49889280*Math.pow(x,2)+16384))/(186264514923095703125*Math.pow(x,87));
+	} else if (deriv_num == 30) {
+		return -scale_mult_up*(32768*Math.exp(-1/(5*Math.pow(x,2)))*(46741426184427853159636259078979492187500000000000*Math.pow(x,58)-813300815609044644977670907974243164062500000000000*Math.pow(x,56)+3099579775043359035859345793724060058593750000000000*Math.pow(x,54)-4538218551098469118975403666496276855468750000000000*Math.pow(x,52)+3289584918921089843696018110513687133789062500000000*Math.pow(x,50)-1364375374914275317644652322530746459960937500000000*Math.pow(x,48)+355392575734548733208364954829216003417968750000000*Math.pow(x,46)-62012199121529276514859683537483215332031250000000*Math.pow(x,44)+7596750732755515371956561602950096130371093750000*Math.pow(x,42)-676896533084299794149800318264961242675781250000*Math.pow(x,40)+45083797920956596551995699765682220458984375000*Math.pow(x,38)-2293136265424117213774677127361297607421875000*Math.pow(x,36)+90598691539879329412781631503105163574218750*Math.pow(x,34)-2818030915232536168393023396492004394531250*Math.pow(x,32)+69744421744518433172321268024444580078125*Math.pow(x,30)-1384750545560674177430902107238769531250*Math.pow(x,28)+22190452494784129479113497924804687500*Math.pow(x,26)-288188601649581404171546630859375000*Math.pow(x,24)+3039935350297387517072753906250000*Math.pow(x,22)-26052545897051558611289062500000*Math.pow(x,20)+181070638124946429234375000000*Math.pow(x,18)-1016318454665833068750000000*Math.pow(x,16)+4573993997346637500000000*Math.pow(x,14)-16326461174751000000000*Math.pow(x,12)+45474559537680000000*Math.pow(x,10)-96479526124800000*Math.pow(x,8)+150233771520000*Math.pow(x,6)-161516544000*Math.pow(x,4)+106905600*Math.pow(x,2)-32768))/(931322574615478515625*Math.pow(x,90));
+	}
+}
+
+function draw() {
+
+var canvas = document.getElementById("canvas");
+var axes = {};
+var context = canvas.getContext("2d");
+ 
+	// задаём размеры холста
+context.canvas.width  = window.innerWidth*0.6;
+context.canvas.height = window.innerHeight*0.85;
+
+width_global = context.canvas.width;
+height_global = context.canvas.height;
+ 
+	// если браузер не поддерживает пунктирные линии
+if (!context.setLineDash) {
+	context.setLineDash = function () {}
+}
+ 
+	// очищение холста от предыдущих графиков
+context.clearRect(0, 0, canvas.width, canvas.height);
+ 
+axes.x0 = 0.5*canvas.width;
+axes.y0 = 0.7*canvas.height;
+
+axes.scale = 100;
+axes.doNegativeX = true;
+ 
+drawGraph(context, axes, "rgb(0, 191, 255)", 1, xpos); 
+drawAxes(context, axes);
+
+}
+
+function drawAxes(context, axes) {
+
+var x0 = axes.x0;
+var y0 = axes.y0;
+var xmin = axes.doNegativeX ? 0 : x0;
+ 
+	// рисуем оси
+context.save();
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+context.lineTo(width_global, y0);
+context.moveTo(x0, 0);
+context.lineTo(x0, height_global);
+context.stroke();
+context.closePath();
+context.restore();
+
+	// подписываем оси
+context.save();
+context.beginPath();
+context.fillStyle = "#000000";
+context.font = "bold 12px sans-serif";
+context.fillText("x", width_global - 10, axes.y0 - 5);
+context.fillText("y", axes.x0 + 10, 10);
+context.closePath();
+context.restore();
+
+}
+
+function drawGraph (context, axes, color, thick, xpos) {
+	
+	// задаём шаг, переменные для абсциссы и для ординаты при отрисовке функции, точку начала координат и коэффициент масштабирования\
+	
+var x, y, dx = 0.1, x0 = axes.x0, y0 = axes.y0, scale = axes.scale;
+var end = Math.round((context.canvas.width - x0)/dx);
+var start = axes.doNegativeX ? Math.round(-x0/dx) : 0;
+
+ 	// для вывода значений
+	
+var div = document.getElementById("textDiv");
+div.textContent = "Номер производной: " + deriv_num;
+
+	// рисуем график следующей производной
+	
+deriv_num = deriv_num + 1;
+
+context.save();
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#FF8C00";
+context.setLineDash([2, 4]);
+
+for (var i = start; i <= end; i++) {
+	x = dx*i; y = scale*currentDerValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+context.restore();
+  
+deriv_num = deriv_num - 1;
+
+	// рисуем график предыдущей производной
+	
+if (deriv_num > 0) {
+
+	deriv_num = deriv_num - 1;
+
+	context.save();
+	context.beginPath();
+	context.lineWidth = thick;
+	context.strokeStyle = "#ADD8E6";
+	context.setLineDash([2, 4]);
+	
+	for (var i = start; i <= end; i++) {
+		x = dx*i; y = scale*currentDerValue(x/scale);
+		if (i == start) {
+			context.moveTo(x0 + x, y0 - y);
+		} else {
+			context.lineTo(x0 + x, y0 - y);
+		}
+	}
+
+	context.stroke();
+	context.closePath();
+	context.restore();
+	
+	deriv_num = deriv_num + 1;
+}
+
+
+	// рисуем график функции
+ 
+context.save();
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#00C5CD";
+context.setLineDash([2, 0]);
+
+for (var i = start + 30; i <= end - 30; i++) {
+	x = dx*i; y = scale*funcValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+context.restore();
+ 
+	// рисуем график текущей производной
+	
+context.save();
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#EE3A8C"; //
+
+var highlight_area = false; // отрисовывается сейчас подсвеченная часть или нет
+var trigger_value = 1; // пороговое значение - с какого момента подсветка
+var margin = 1;
+var highlight_thickness = 4;
+var highlight_radius = 30;
+
+for (var i = start; i <= end; i++) {
+	x = dx*i; y = scale*currentDerValue(x/scale);
+	if (Math.abs(y) < trigger_value && highlight_area == false) {
+		highlight_area = true;
+		context.stroke();
+		context.closePath();
+		context.beginPath();
+		context.lineWidth = highlight_thickness;
+		context.strokeStyle = "#1E90FF";
+	}
+	if (highlight_area == true && Math.abs(y) > trigger_value) {
+		highlight_area = false;
+		context.stroke();
+		context.closePath();
+		context.beginPath();
+		context.lineWidth = thick;
+		context.strokeStyle = "#EE3A8C";
+	}
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		if (highlight_area == true) {
+			context.lineTo(x0 + x, y0 - y - margin);
+		} else {
+			context.lineTo(x0 + x, y0 - y);
+		}
+	}
+}
+ 
+context.stroke();
+context.closePath();
+context.restore();
+}
+
+</script>
+
+</head>
+<body onload = "draw()" class = "control">
+    <div id="wrapper">
+        <div id="headerwrap">
+        <div id="header">
+<table width = "100%" align = "center">
+<tr>
+<th width = "100px"><ul id="menu-bar">
+<li><a href="#">Задачи</a>
+<ul>
+<li><a href = "p14ex2_bnav.html">14.2 б</a></li>
+<li><a href = "p14ex2_cnav.html">14.2 в</a></li>
+<li><a href = "p14ex5nav.html">14.5</a></li>
+<li><a href = "p15ex15nav.html">15.15</a></li>
+<li><a href = "p15ex14nav.html">15.14</a></li>
+<li><a href = "p16ex10nav.html">16.10</a></li>
+<li><a href = "p18ex5nav.html">18.5</a></li>
+</ul>
+</li></ul></th>
+<th><div id = "exercise"> 16.10 </div>
+Розовым цветом нарисована текущая производная, зелёным - исходная функция, оранжевым - следующая производная, серым - предыдущая.
+</th>
+</tr>
+</table>
+		</div>
+        </div>
+   
+        <div id="contentliquid"><div id="contentwrap">
+        <div id="content">
+        <canvas id="canvas"></canvas>
+		</div>
+        </div></div>
+        <div id="rightcolumnwrap">
+        <div id="rightcolumn">
+        <aside id="sideRight">
+			<form><br><br>
+			<div id="textDiv"></div><br><br>
+			Для построения следующей производной нажмите пробел; предыдущей - 'q'.<br><br>
+			</FORM>
+		</aside>    
+		</div>
+        </div>
+    </div>
+</body>
+</html>

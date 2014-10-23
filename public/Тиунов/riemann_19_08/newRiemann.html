@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/riemann_19_08/style.css"/>
+    <script src="../../scripts/jquery-1.11.1.min.js"></script>
+    <title></title>
+</head>
+<body>    
+    <div style="float: left; display: inline-block; margin: 5px;">   
+    Выберите верхний<br> предел построения<br>     
+        <input type="radio" name="radioGroup" value="400" onchange="drawRiemann.changeN(this)">400<br>
+        <input type="radio" name="radioGroup" value="500" onchange="drawRiemann.changeN(this)" checked>500<br>
+        <input type="radio" name="radioGroup" value="750" onchange="drawRiemann.changeN(this)">750<br>
+        <input type="radio" name="radioGroup" value="1000" onchange="drawRiemann.changeN(this)">1000<br>    
+    <div id="controls"></div>
+    <div id="ranges"></div>
+    </div>
+    <div id="riemannGraph" style="padding: 0; margin-left: 0; margin-right: 0; margin-bottom: 0"></div>       
+
+    <!--Подключать все js-файлы лучше всего в конце тела html-страницы.
+    Сначала подкючаем библиотеку d3.js. На основе нее создан класс для рисования графиков.
+    Потом сам класс для графиков.
+    Потом класс кнопок управления.
+    В конце подключаем приложение, которое будет пользоваться нашим классом.-->
+    <script src="../../scripts/d3.v2.min.js"></script>
+    <script src="PlotSkeleton.js"></script>
+    <script src="../../scripts/ControlSkeleton.js"></script>
+    <script src="drawRiemann.js"></script>
+</body>
+</html>

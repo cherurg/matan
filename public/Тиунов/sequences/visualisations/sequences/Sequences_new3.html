@@ -1,0 +1,64 @@
+	<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Тег meta для указания кодировки -->
+<meta charset="utf-8">
+<script type="text/javascript"
+	src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<script type="text/javascript"
+	src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<style>
+	.boldtable, .boldtable TD, .boldtable TH
+	{
+		font-size:10pt;
+	}
+</style>
+<style>
+h1 
+{
+   font-size: 100%; /* Размер шрифта в процентах */ 
+} 
+</style>
+</head>
+<body> 
+	</div>
+		<div id="my_text">
+	</div>
+	<form>
+	<select id = "List">	
+		<option><I>  \(\Large { \{1/2, 1/3, 2/3, 1/4, 2/4, 3/4, ...\}}\);</I></option>
+		<option><I>  (-1)^n*(1 + 1/n);</I></option>
+		<option><I>  (-1)^n*(1 + 1/n)^n;</I> </option>
+		<option><I>  sin(n);</I></option>
+		<option><I>  (1 + 1/n)^n and \(\Large{\sum 1/n!}\);</I> </option>
+		<option><I>  {1/2, 1/2, 1/3, 1/2, 1/3, 1/4, ...};</I></option>
+		<option><I>  {1/1-1/2, 1/1-1/3, 1/2-1/4, 1/1-1/5, 1/2-1/6,1/3-1/7,...};</I> </option>
+		<option><I>  {0, 1, -1 , 0, 1, -1, 0, 1, -1, 2, -2, 0, 1, -1, 2, -2, 3, -3...};</I></option>
+		<option>(2 + (-1)^n)/n</option>
+		<option>(1 + (-1)^n)/n</option>
+		<option>(-1)^n</option>
+		<option>(0.9)^n</option>
+		<option>(-1)^n/n</option>
+		<option>14 </option>
+		<option>15</option>
+		<option>16</option>
+	</select> <br>
+	</form>
+ 
+ 	<!--<div id="startButton"></div>-->
+ 	<div id="Controls"></div>
+    <div id="Sequences"></div>    
+
+    <!--Подключать все js-файлы лучше всего в конце тела html-страницы.
+    Сначала подкючаем библиотеку d3.js. На основе нее создан класс для рисования графиков.
+    Потом сам класс для графиков.
+    Потом класс кнопок управления.
+    В конце подключаем приложение, которое будет пользоваться нашим классом.-->
+    <script src="d3.v2.min.js"></script>
+    <script src="PlotSkeleton.js"></script>
+    <script src="ControlSkeleton.js"></script>
+    <script src="drawSequences.js"></script>
+</body>
+</html>

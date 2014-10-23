@@ -1,0 +1,56 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Partial derivatives</title>
+	<style>
+		input {
+			width: auto;
+			height: 30px;
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="plot_area" width="400" height="400" style="float: left"></div>
+	<div style="float: left">
+		<div id="options"></div>
+		<div id="output"></div>
+	</div>
+		
+	<script type="text/javascript" src="js/LAB.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			var example, numPoints = 33, fLib = DemoFunctions.explicit;
+			var UI = new MathUI(document.getElementById('options'))
+				.push('label', {text: '\\(f(x, y) = \\)'})
+				.push('select', {id: 'f', options: getNames(fLib), action: plotAll, br: true});
+			var plotters = new MultiPlotter3d(document.getElementById('plot_area'), 3);			
+			plotAll();
+			
+			function plotAll() {
+				example = fLib[UI.f.value];
+				plotSurf();
+				plotPD(0);
+				plotPD(1);
+			}
+			
+			function plotSurf() {							
+				var grid = eqGrid(example.range, numPoints, example.usePolar);
+				plotters[0].plot3d(apply(grid, example.f), {ID: 'surf', axisLen: example.range});
+			}
+			
+			function plotPD(dim) {
+				var grid = eqGrid(example.range, numPoints, example.usePolar);
+				var dfdd = function(p) {
+					return [p[0], p[1], grad(example.f, p)[dim]];
+				}
+				plotters[dim + 1].plot3d(apply(grid, dfdd), {ID: 'PD' + dim, axisLen: example.range});
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>

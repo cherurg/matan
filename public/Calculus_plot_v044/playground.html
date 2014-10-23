@@ -1,0 +1,91 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Vector fields</title>
+	<style>
+		input {
+			width: auto;
+			height: 30px;
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="plot_area" width="800" height="800" style="float: left"></div>
+	<div style="float: left">
+		<div id="options"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/LAB.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			var example,
+				test = new Plotter3d(document.getElementById('plot_area')),
+				numPoints = test.useWebGL? 41: 17;
+			var UI = new MathUI(document.getElementById('options'))
+				.push('label', {text: '', br: true})
+				.push('label', {text: '\\(f: \\)'})
+				.push('text', {id: 'f', text: 't/3*sin(12*t), t/3*cos(12*t), log(t)', action: plot, br: true})
+				.push('label', {id: 'v1name', text: 'x'})
+				.push('range', {id: 'v1', action: plot, br: true})
+				.push('label', {id: 'v2name', text: 'y'})
+				.push('range', {id: 'v2', action: plot, br: true})				
+				.push('label', {id: 'v3name', text: 'z'})
+				.push('range', {id: 'v3', action: plot, br: true});
+			plot();
+			
+			function updateInput() {
+				var varNames = str2func(UI.f.value).variables;
+				console.log(varNames);
+				for (var i = 1; i < 4; i++)
+					if (varNames[i-1]) {
+						UI['v'+i+'name'].show();
+						UI['v'+i].show();
+						UI['v'+i+'name'].text = varNames[i-1] + ' : ';
+					} else {
+						UI['v'+i+'name'].hide();
+						UI['v'+i].hide();
+					}
+			}
+			
+			function plot() {
+				updateInput();
+				var testF = str2func(UI.f.value), data, tDom = UI.v1.value, pDom = UI.v2.value, qDom = UI.v3.value;
+				console.log('good', testF, tDom);
+				
+				if (~'ep'.indexOf(testF.type)) {
+					if (testF.variables.length === 1)
+						data = seq(tDom[0], tDom[1], 300).map(testF.f);
+					else if (testF.variables.length === 2)
+						data = apply(make.grid(tDom, pDom, {len: numPoints}), testF.f);
+				} else if (~'v'.indexOf(testF.type)) {
+					console.log('vecField', testF.variables.length);
+					var grid = rectGrid({dist: tDom[1], nDim: testF.variables.length, len: 5});
+					console.log(grid);
+					data = apply(grid, testF.f);
+					console.log(data);
+				} else {
+					if (testF.is3D)
+						data = implicit(function(p) {return testF.f(p) < 0}, 2);
+					else
+						data = levelCurve({cond:function(p) {return testF.f(p) < 0}, dist:2, val:0});			
+				}
+				
+				if (testF.is3D) test.setView3();
+				else test.setView2();
+								
+				if (testF.type === 'v')
+					test.plotVecField3d(data, {ID: 'curve', axisLen: 2});
+				else if (testF.type === 'i')
+					test.plot3d(data, {type: '-', ID: 'curve', axisLen: 2});
+				else
+					test.plot3d(data, {ID: 'curve', axisLen: 2});
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>

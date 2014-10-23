@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>14.2 в</title>
+<!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<meta name = "keywords" content = "">
+<meta name = "description" content = "">
+<meta charset = "utf-8">
+<link rel = "stylesheet" href = "stylesheets/style.css">
+<script src = "scripts/mousetrap.min.js"></script>
+ 
+<script type = "text/javascript">
+
+// управление построением графика
+
+var func_num = 1;
+var start_point = -100;
+var xpos = start_point;
+
+// управление анимацией
+
+var stop_checker = false;
+var was_stopped = false;
+var animation_started = 0;
+var slow_motion_checker = 0;
+
+var width_global = 700;
+var height_global = 700;
+
+// параметры функции
+
+var m = 1;
+var n = 1;
+
+function makeAnimation(form) {
+  animation_started++;
+  if (animation_started == 1) {
+	var timer = setInterval(drawAnimation, 10);
+  }
+  if (!was_stopped) {
+	xpos = start_point;
+	}
+	was_stopped = false;
+
+function drawAnimation() {
+
+x_increment = 0.4;
+if (m >= 5 && n < 5 && Math.abs(xpos) < 100) {
+	x_increment = 0.9;
+}
+xpos = xpos + x_increment;
+redrawCanvas();
+    if (xpos == width_global || stop_checker == true) {
+      clearInterval(timer);
+    }
+  }
+  
+}
+
+function controlAnimation(form) {
+
+	if (stop_checker == false) {	// если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { 						// если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation(form);
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+}
+
+Mousetrap.bind('space', function() { 
+
+	if (stop_checker == false) {	// если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { 						// если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation();
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+ }, 'keydown');
+
+function redrawCanvas() {
+	draw();
+}
+
+function initializeParameters() {
+	m = document.getElementById("parameter_m").value;
+	var m_output = document.getElementById("m_output");
+	m_output.textContent = "m = " + m;
+	n = document.getElementById("parameter_n").value;
+	var n_output = document.getElementById("n_output");
+	n_output.textContent = "n = " + n;
+}
+
+function changeParameterM() {
+	m = document.getElementById("parameter_m").value;
+	var m_output = document.getElementById("m_output");
+	m_output.textContent = "m = " + m;
+	redrawCanvas();
+}
+
+function changeParameterN() {
+	n = document.getElementById("parameter_n").value;
+	var n_output = document.getElementById("n_output");
+	n_output.textContent = "n = " + n;
+	redrawCanvas();
+}
+
+function funcValue(x) {
+	return Math.pow(Math.abs(x), n)*Math.sin(1/Math.pow(Math.abs(x), m));
+}
+
+function derivValue(x) { 
+	return (Math.pow(x*x, ((n-m)/2)))*((-m*Math.cos(Math.pow((x*x),(-m/2))) + n*Math.pow((x*x),(m/2))*Math.sin(Math.pow(x*x,-m/2))))/x;
+}
+
+function draw() {
+
+var canvas = document.getElementById("canvas");
+var axes = {};
+var context = canvas.getContext("2d");
+ 
+initializeParameters();
+
+	// задаём размеры холста
+	
+context.canvas.width  = window.innerWidth*0.5;
+context.canvas.height = window.innerHeight*0.8;
+
+width_global = context.canvas.width;
+height_global = context.canvas.height;
+ 
+	// если браузер не поддерживает пунктирные линии
+	
+if (!context.setLineDash) {
+	context.setLineDash = function () {}
+}
+ 
+	// очищение холста от предыдущих графиков
+	
+context.clearRect(0, 0, canvas.width, canvas.height);
+ 
+axes.x0 = 0.5*canvas.width;
+axes.y0 = 0.5*canvas.height;
+
+axes.scale = 200;
+axes.doNegativeX = true;
+ 
+drawGraph(context, axes, "rgb(0, 191, 255)", 1, xpos); 
+drawAxes(context, axes);
+
+}
+
+function drawAxes(context, axes) {
+
+var x0 = axes.x0;
+var y0 = axes.y0;
+var xmin = axes.doNegativeX ? 0 : x0;
+ 
+	// рисуем оси
+context.save();
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+context.lineTo(width_global, y0);
+context.moveTo(x0, 0);
+context.lineTo(x0, height_global);
+context.stroke();
+context.closePath();
+context.restore();
+ 
+	// подписываем оси
+context.beginPath();
+context.fillStyle = "#000000";
+context.font = "bold 12px sans-serif";
+context.fillText("x", width_global - 10, axes.y0 - 5);
+context.fillText("y", axes.x0 + 10, 10);
+context.closePath();
+
+}
+
+function drawGraph (context, axes, color, thick, xpos) {
+	
+	// задаём шаг, переменные для абсциссы и для ординаты при отрисовке функции, точку начала координат и коэффициент масштабирования
+	
+var x, y, dx = 0.1, x0 = axes.x0, y0 = axes.y0, scale = axes.scale;
+var end = Math.round((context.canvas.width - x0)/dx);
+var start = axes.doNegativeX ? Math.round(-x0/dx) : 0;
+ 
+	// рисуем график производной
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#dddddd";
+
+for (var i = start; i <= end; i++) {
+	x = dx*i; y = scale*derivValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+  
+	// рисуем график функции
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = color;
+context.setLineDash([2, 0]);
+
+for (var i = start + 30; i <= end - 30; i++) {
+	x = dx*i; y = scale*funcValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+
+	  // рисуем касательную
+	  
+context.save();
+context.beginPath();
+context.lineWidth = 1;
+context.strokeStyle = "rgb(244, 122, 0)";
+context.setLineDash([1, 0]);
+if (Math.abs(derivValue(xpos/scale)) > 1000) {
+	context.moveTo(x0 + xpos, y0 - scale*width_global/2);
+	context.lineTo(x0 + xpos, y0 + scale*width_global/2);
+} else {
+	context.moveTo(x0 + width_global/2, y0 - scale*(funcValue(xpos/scale) + derivValue(xpos/scale)*((width_global/2)/scale - xpos/scale)));
+	context.lineTo(x0 - width_global/2, y0 - scale*(funcValue(xpos/scale) + derivValue(xpos/scale)*((-width_global/2)/scale - xpos/scale)));
+}
+context.stroke();
+context.closePath();
+context.restore();
+ 
+	   // рисуем секущие
+	   
+context.save();
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = "#800080";
+context.moveTo(x0 + width_global, y0 - scale*(funcValue(xpos/scale)/(xpos/scale))*(width_global/scale));
+context.lineTo(x0 - width_global, y0 - scale*(funcValue(xpos/scale)/(xpos/scale))*(-width_global/scale));
+context.stroke();
+context.closePath();
+context.restore();
+
+context.save();
+context.beginPath();
+context.fillStyle = "rgb(244, 122, 0)";
+context.arc(xpos + x0, y0 - scale*funcValue(xpos/scale), 5, 0, Math.PI*2, false);
+context.fill();
+context.closePath();
+context.restore();
+
+context.save();
+context.beginPath();
+context.fillStyle = "rgb(225, 0, 0)";
+context.arc(x0, y0, 5, 0, Math.PI*2, false);
+context.fill();
+context.closePath();
+context.restore();
+
+}
+
+</script>
+
+</head>
+<body onload = "draw()" class = "control">
+<div id="wrapper">
+<div id="headerwrap">
+<div id="header">
+<table width = "100%" align = "center">
+<tr>
+<th width = "100px"><ul id="menu-bar">
+<li><a href="#">Задачи</a>
+<ul>
+<li><a href = "p14ex2_bnav.html">14.2 б</a></li>
+<li><a href = "p14ex2_cnav.html">14.2 в</a></li>
+<li><a href = "p14ex5nav.html">14.5</a></li>
+<li><a href = "p15ex15nav.html">15.15</a></li>
+<li><a href = "p15ex14nav.html">15.14</a></li>
+<li><a href = "p16ex10nav.html">16.10</a></li>
+<li><a href = "p18ex5nav.html">18.5</a></li>
+</ul>
+</li></ul> </th>
+<th><div id = "exercise"> 14.2 в</div>
+Оранжевым цветом нарисована касательная, фиолетовым пунктиром - секущая через (x, f(x)) и (0, 0), серой сплошной линией - график производной, синей сплошной - функции. Кружком отмечена точка касания.
+</th>
+</tr>
+</table>
+		</div>
+        </div>
+   
+        <div id="contentliquid"><div id="contentwrap">
+        <div id="content">
+        <canvas id="canvas"></canvas>
+		</div>
+        </div></div>
+        <div id="rightcolumnwrap">
+        <div id="rightcolumn">
+        <aside id="sideRight">
+			<form>
+			<br><input type = "Button" id = "makeAnimationButton" value = " Начать показ " onclick = "makeAnimation(this.form)"><br>
+			<input type = "Button" id = "controlButton" value = " Пауза " onclick = "controlAnimation(this.form)"><br>
+			</form>
+			<br><br>
+			<img src = "images/formula1.gif"></img>
+			<br><br>
+			m: <input type="range" id = "parameter_m"  onchange = "changeParameterM()" min="0" max="10" step="1" list = ticks>
+			<br><div id = "m_output"></div><br>
+			n: <input type="range" id = "parameter_n"  onchange = "changeParameterN()" min="0" max="10" step="1" list = ticks>
+			<br><div id = "n_output"></div><br>
+			<datalist id = ticks>
+			<option>1</option>
+			<option>2</option>
+			<option>3</option>
+			<option>4</option>
+			<option>5</option>
+			<option>6</option>
+			</datalist> 
+			</aside>
+		</div>
+        </div>
+    </div>
+</body>
+</html>

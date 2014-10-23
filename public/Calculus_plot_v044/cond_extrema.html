@@ -1,0 +1,77 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Level curves</title>
+	<style>
+		input {
+			width: auto;
+			height: 30px;
+			display: inline-block;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="plot_area" width="800" height="800" style="float: left"></div>
+	<div style="float: left">
+		<div id="options"></div>	
+		<div id="output"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/LAB.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			var example;		
+			var fLib = DemoFunctions.explicit;
+			var UI = new MathUI(document.getElementById('options'))
+				.push('select', {id: 'f', options: getNames(fLib), action: plotSurf, br: true})
+				.push('select', {pre: 'Condition type: ', id: 'type', options: ['Cylinder', 'Plane'], action: plotCondition, br: true})
+				.push('vector', {pre: 'Ellipse dimensions: ', id: 'r', action: plotCondition, br: true, positive: true})
+				.push('vector', {pre: 'Line: ', id: 'l', action: plotCondition, br: true});
+			
+			
+			var levelPlotter = new Plotter3d(document.getElementById('plot_area'));
+			var numPoints = levelPlotter.useWebGL? 41: 17;
+			plotSurf();
+			
+			function updateInput() {
+				example = fLib[UI.f.value];
+				if (UI.type.value == 1) {
+					UI.r.hide();
+					UI.l.show();
+				} else {
+					UI.r.show();
+					UI.l.hide();
+				}
+			}
+			
+			function plotSurf() {	
+				updateInput();
+						
+				var grid = eqGrid(example.range, numPoints, example.usePolar);
+				levelPlotter.plot3d(apply(grid, example.f), {ID: 'surf', axisLen: example.range});
+				
+				plotCondition();
+			}
+			
+			function plotCondition() {
+				updateInput();
+				
+				var curve;
+				if (UI.type.value == 0)
+					curve = make.ellipse([0, 0], UI.r.value);
+				else
+					curve = make.line(example.range, [0, UI.l.value[1]], UI.l.value[0]);
+				curve = apply(curve, example.f);
+					
+				levelPlotter.plot3d(zInvariant(curve, example.zSpan), {type: 's-', col: 0x888888, alpha: .6, ID: 'cond'});
+				levelPlotter.plot3d(curve, {overlay: true, type: '-', col: 'borange', ID: 'inter'});
+				levelPlotter.plot3d(localExtrema(curve), {radius: .2, overlay: true, type: 'p', col: 'seagreen', ID: 'extrema'});
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="../scripts/SequenceGenerator.js"></script>
+		<script type="text/javascript" src="../scripts/BoardGeneratorRiman.js"></script>
+		<script type="text/javascript" src="../scripts/parametersRiman.js"></script>
+		<script type="text/javascript" src="../scripts/linesRiman.js"></script>
+		<script type="text/javascript" src="../scripts/jsxgraphcore.js"></script>
+		<link rel="stylesheet" type="text/css" href="../stylesheets/rimanStyle.css">
+		<link rel="stylesheet" type="text/css" href="../stylesheets/jsxgraph.css">
+	</head>
+	
+	<body>
+		
+		<div id="pic"><img src="../images/0_riman.gif"/></div>
+		<ul id="list-nav">
+			<li><a href="#" onclick="document.getElementById('page1').style.display =  'block'; document.getElementById('page0').style.display =  'none';">Graph</a></li>
+			<li><a href="#" onclick="document.getElementById('page0').style.display =  'block'; document.getElementById('page1').style.display =  'none';">Table</a></li>
+			<li><a href="#" onclick="resetRow();">Reset</a></li>
+		</ul>
+	
+		<form id="myform">
+			<select id="mymenu" onchange = "var a = document.forms[0].mymenu.options[document.forms[0].mymenu.selectedIndex].value;
+											changeSeq(sn[a]);
+											document.getElementById('pic').innerHTML = '';
+											var o=document.createElement('div');
+											var t = '<img src=\'res/' + a + '.gif\'/>';
+											o.innerHTML = t;
+											document.getElementById('pic').appendChild(o);"  />
+											
+				<option value="0" selected>harmonic</option>
+				<option value="1">negative harmonic</option>
+				<option value="2">Quasiharmonic</option>
+			</select>
+		</form>
+
+		<br/>
+		
+		<div id='page1' style="display: block;">
+			<div id='jxgbox' class='jxgbox' style="position: absolute; z-index: 1; width: 98%; height: 80%"></div>
+		</div>
+		<div id='page0' style="display:none;"></div>
+		
+		
+		
+		<script type="text/javascript">
+		
+			
+			mult = 4;
+			var begin = 1;
+			
+			
+			func = function(x) {
+				return Math.pow(-1,(x+1))/Math.pow(x, 0.7); //рабочая функция.
+			}
+			func.negativeFlag = false;
+			
+		/*	func = function(x) {
+				return Math.sin(Math.PI*x/12)/x;
+			}	
+			*/
+			
+			func1 = function(x) {
+				if(x%2 == 1)
+					return Math.pow(-1,x+1)/Math.pow(x+1, 0.7); //рабочая функция.
+				else
+					return Math.pow(-1,x-1)/Math.pow(x-1, 0.7); 
+					//return Math.pow(-1,x)/Math.pow(x, 0.7);
+			}
+			func1.negativeFlag = true;
+			
+			func2 = function(x) {
+				return Math.pow(-1,(x+1))/Math.pow(x, 1/2+1/x);
+			}
+			func2.negativeFlag = false;
+			
+			var sn = [];
+			var secGen = new SequenceGenerator(func, buttomOfBox, topOfBox, 0.01, n, begin, mult);
+			sn.push(secGen);
+			
+			
+			var temp = new SequenceGenerator(func1, buttomOfBox, topOfBox, 0.01, n, begin, mult);
+			sn.push(temp);
+			temp = new SequenceGenerator(func2, buttomOfBox, topOfBox, 0.01, n, begin, mult);
+			sn.push(temp);
+			
+			
+			var summ = 0;
+			for(i = 1; i <= n; ++i)
+				summ += func(i);
+			secGen.setBase(summ);
+			sn[1].setBase(-summ);
+			sn[2].setBase(0.71);
+			
+			CreateBoard();
+			
+			//setTimeout(function() {changeSeq(sn);}, 5000);
+			
+		</script>
+		
+	</body>
+	
+</html>

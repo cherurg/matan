@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<title>12.9</title>
+<!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<meta name = "keywords" content = "">
+<meta name = "description" content = "">
+<meta charset = "utf-8">
+<link rel = "stylesheet" href = "stylesheets/style.css">
+<script src = "scripts/mousetrap.min.js"></script>
+
+<script type = "text/javascript">
+// управление построением графика
+var func_num = 1;
+var start_point = 0;
+var xpos = start_point;
+
+// управление анимацией
+var stop_checker = false;
+var was_stopped = false;
+var animation_started = 0;
+var slow_motion_checker = 0;
+
+var width_global = 700;
+var height_global = 700;
+
+function makeAnimation(form) {
+  animation_started++;
+  if (animation_started == 1) {
+	var timer = setInterval(drawAnimation, 20);
+  }
+  if (!was_stopped) {
+	if (func_num == 1) {
+		xpos = -width_global/10;
+	} else if (func_num == 2 || func_num == 4) {
+		xpos = -width_global/10;
+	} else {
+		xpos = -width_global/8;
+	}
+	}
+	was_stopped = false;
+
+function drawAnimation() {
+	x_increment = 2;
+	if (Math.abs(xpos) < width_global/10) {
+		x_increment = 0.5;
+	}
+	xpos = xpos + x_increment;
+	redrawCanvas();
+    if (xpos == width_global || stop_checker == true) {
+      clearInterval(timer);
+    }
+  }
+  
+}
+
+function controlAnimation(form) {
+	if (stop_checker == false) {		// если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else {							// если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation(form);
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+}
+
+Mousetrap.bind('space', function() { 
+	if (stop_checker == false) { 		// если нажали паузу
+		stop_checker = true;
+		was_stopped = false;
+	} else { 							// если нажали пуск
+		was_stopped = true;
+		stop_checker = false;
+		animation_started = 0;
+		makeAnimation();
+	}
+		var elem = document.getElementById("controlButton");
+		if (elem.value == " Пуск ") {
+			elem.value = " Пауза ";
+		} else {
+			elem.value = " Пуск ";
+		}
+ }, 'keydown');
+
+function redrawCanvas() {
+	if (document.getElementById('func1').checked)  {
+		func_old = func_num;
+		func_num = 1;
+		if (func_num != func_old) {
+			xpos = -width_global/13;
+		}
+		draw();
+	} else if (document.getElementById('func2').checked) {
+		func_old = func_num;
+		func_num = 2;
+		if (func_num != func_old) {
+			xpos = -width_global/10;
+		}
+		draw();
+	} else if (document.getElementById('func3').checked) {
+		func_old = func_num;
+		func_num = 3;
+		if (func_num != func_old) {
+			xpos = -width_global/8;
+		}
+		draw();
+	}
+	else {
+		func_old = func_num;
+		func_num = 4;
+		if (func_num != func_old) {
+			xpos = -width_global/10;
+		}
+		draw();
+	}
+}
+
+function sgn(x) {
+	if (x > 0) {
+		return 1;
+	} else if (x < 0) {
+		return -1;
+	} else return 0;
+}
+
+function funcValue(x) { 
+	if (func_num == 1)  {
+		return sgn(Math.sin(Math.PI/x));
+	} else if (func_num == 2) {
+		return x*Math.floor(1/x);
+	} else if (func_num == 3) {
+		return 1/(10*(1 - Math.exp(x/(1-x))));
+	} else if (func_num == 4) {
+		return 5*Math.floor(x)*Math.sin(Math.PI*x)*1/10;
+	} 
+}
+
+function draw() {
+
+var canvas = document.getElementById("canvas");
+var axes = {};
+var context = canvas.getContext("2d");
+ 
+	// задаём размеры холста
+	
+context.canvas.width  = window.innerWidth*0.5;
+context.canvas.height = window.innerHeight*0.8;
+
+width_global = context.canvas.width;
+height_global = context.canvas.height;
+ 
+	// если браузер не поддерживает пунктирные линии
+	
+if (!context.setLineDash) {
+	context.setLineDash = function () {}
+}
+ 
+	// очищение холста от предыдущих графиков
+	
+context.clearRect(0, 0, canvas.width, canvas.height);
+ 
+axes.x0 = 0.5*canvas.width;
+axes.y0 = 0.5*canvas.height;
+
+if (func_num == 2) {
+	axes.scale = 200;
+} else if (func_num == 3) {
+	axes.scale = 200;
+} else if (func_num == 1) {
+	axes.scale = 300;
+} else {
+	axes.scale = 100;
+}
+
+axes.doNegativeX = true;
+ 
+drawGraph(context, axes, "rgb(0, 191, 255)", 1, xpos); 
+drawAxes(context, axes);
+
+}
+
+function drawAxes(context, axes) {
+
+var x0 = axes.x0;
+var y0 = axes.y0;
+var xmin = axes.doNegativeX ? 0 : x0;
+ 
+	// рисуем оси
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+context.lineTo(width_global, y0);
+context.moveTo(x0, 0);
+context.lineTo(x0, height_global);
+context.stroke();
+context.closePath();
+ 
+	// подписываем оси
+	
+context.beginPath();
+context.fillStyle = "#000000";
+context.font = "bold 12px sans-serif";
+context.fillText("x", width_global - 10, axes.y0 - 5);
+context.fillText("y", axes.x0 + 10, 10);
+context.closePath();
+
+}
+
+function drawGraph (context, axes, color, thick, xpos) {
+	
+	// задаём шаг, переменные для абсциссы и для ординаты при отрисовке функции, точку начала координат и коэффициент масштабирования
+	
+var x, y, dx = 0.1, x0 = axes.x0, y0 = axes.y0, scale = axes.scale;
+var end = Math.round((context.canvas.width - x0)/dx);
+var start = axes.doNegativeX ? Math.round(-x0/dx) : 0;
+
+	// рисуем график функции
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = color;
+context.setLineDash([2, 0]);
+
+for (var i = start; i <= end; i++) {
+	x = dx*i; y = scale*funcValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+ 
+context.stroke();
+context.closePath();
+
+var radius = 5;
+
+context.beginPath();
+context.fillStyle = "rgb(244, 122, 0)";
+context.arc(xpos + x0, y0 - scale*funcValue(xpos/scale), radius, 0, Math.PI*2, false);
+context.fill();
+context.closePath();
+
+}
+
+</script>
+
+</head>
+<body onload = "draw()" class = "control">
+    <div id = "wrapper">
+        <div id = "contentliquid"><div id = "contentwrap">
+        <div id = "content">
+		<div id = "exercise"> 12.9 </div>
+		<canvas id="canvas"></canvas>
+		<br><br>
+		<br><br>
+		</div>
+        </div></div>
+        <div id="rightcolumnwrap">
+        <div id="rightcolumn">
+        <aside id="sideRight">
+			<form>
+			<br><input type = "Button" id = "makeAnimationButton" value = " Начать показ " onclick = "makeAnimation(this.form)"><br>
+			<input type = "Button" id = "controlButton" value = " Пауза " onclick = "controlAnimation(this.form)"><br>
+			</form>
+			<br><br><strong> Выберите функцию:</strong> <br><br>
+			<FORM NAME = "funcGetter">
+			<div id="radio">
+			<input type = "radio" name = "funchoice" value = "func1" id = "func1" checked onclick = "redrawCanvas()" class = "radio"> sgn(sin(pi/x))<br>
+			<input type = "radio" name = "funchoice" value = "func2" id = "func2" onclick = "redrawCanvas()" class = "radio"> x[1/x]<br>
+			<input type = "radio" name = "funchoice" value = "func3" id = "func3" onclick = "redrawCanvas()" class = "radio">1/(1 - exp(x/(1-x))) <br>
+			<input type = "radio" name = "funchoice" value = "func4" id = "func4" onclick = "redrawCanvas()" class = "radio"> [x]sin(pi*x) <br>
+			</div><br>
+			</FORM>
+		</aside></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>15.15</title>
+<!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+<meta name = "keywords" content = "">
+<meta name = "description" content = "">
+<meta charset = "utf-8">
+<link rel = "stylesheet" href = "stylesheets/style.css">
+<script src = "scripts/mousetrap.min.js"></script>
+
+<script type = "text/javascript">
+// управление построением графика
+var func_num = 1;
+var start_point = 0;
+var xpos = start_point;
+
+var width_global = 700;
+var height_global = 700;
+
+var scale_mult = 10;
+
+Mousetrap.bind('q', function() { 
+	if (scale_mult < 10*Math.pow(2, 8)) {
+		scale_mult = scale_mult*2;
+	} else scale_mult = scale_mult;
+	redrawCanvas();
+ }, 'keydown');
+ 
+Mousetrap.bind('w', function() { 
+	scale_mult = scale_mult/2;
+	redrawCanvas();
+ }, 'keydown');
+ 
+function redrawCanvas() {
+	draw();
+}
+
+function funcValue(x) { 
+	x = x/2;
+	return x*x*Math.sin(1/(x/scale_mult));
+}
+
+function draw() {
+
+var canvas = document.getElementById("canvas");
+var axes = {};
+var context = canvas.getContext("2d");
+ 
+	// задаём размеры холста
+context.canvas.width  = window.innerWidth*0.5;
+context.canvas.height = window.innerHeight*0.8;
+
+width_global = context.canvas.width;
+height_global = context.canvas.height;
+ 
+	// если браузер не поддерживает пунктирные линии
+if (!context.setLineDash) {
+	context.setLineDash = function () {}
+}
+ 
+	// очищение холста от предыдущих графиков
+context.clearRect(0, 0, canvas.width, canvas.height);
+ 
+axes.x0 = 0.5*canvas.width;
+axes.y0 = 0.5*canvas.height;
+
+axes.scale = 30;
+
+axes.doNegativeX = true;
+ 
+drawGraph(context, axes, "rgb(0, 191, 255)", 1, xpos); 
+drawAxes(context, axes);
+
+}
+
+function drawAxes(context, axes) {
+
+var x0 = axes.x0;
+var y0 = axes.y0;
+var xmin = axes.doNegativeX ? 0 : x0;
+ 
+	// рисуем оси
+	
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+context.lineTo(width_global, y0);
+context.moveTo(x0, 0);
+context.lineTo(x0, height_global);
+context.stroke();
+context.closePath();
+
+	// рисуем метки на осях
+	
+context.beginPath();
+context.setLineDash([1, 0]);
+context.strokeStyle = "#000000"; 
+context.moveTo(xmin, y0);
+
+var number = 100;
+var step = 10*width_global/number;
+var n;
+var k;
+
+for (var i = 1; i < number; i++) {
+	k = i*step;
+	context.fillStyle = "#000000";
+	context.moveTo(x0 + k, y0);
+	context.lineTo(x0 + k, y0 + 2);
+	context.moveTo(x0 + k, y0);
+	context.lineTo(x0 + k, y0 - 2);
+	context.moveTo(x0 - k, y0);
+	context.lineTo(x0 - k, y0 + 2);
+	context.moveTo(x0 - k, y0);
+	context.lineTo(x0 - k, y0 - 2);
+	n = ((i/scale_mult).toPrecision(1)).toString();
+	context.font = "bold 11px sans-serif";
+	context.fillText(n, x0 + k, y0 - 5);
+	context.font = "bold 11px sans-serif";
+	context.fillText("-" + n, x0 - k, y0 - 5);
+	context.stroke();
+	context.closePath();
+	k = k/step;
+}
+
+for (var i = 1; i < number; i++) {
+	k = i*step;
+	context.moveTo(x0, y0 + k);
+	context.lineTo(x0 + 2, y0 + k);
+	context.moveTo(x0, y0 + k);
+	context.lineTo(x0 - 2, y0 + k);
+	context.moveTo(x0, y0 - k);
+	context.lineTo(x0 + 2, y0 - k);
+	context.moveTo(x0, y0 - k);
+	context.lineTo(x0 - 2, y0 - k);
+	n = ((i/scale_mult).toPrecision(1)).toString();
+	context.font = "bold 11px sans-serif";
+	context.fillText(n, x0 + 5, y0 - k);
+	context.font = "bold 11px sans-serif";
+	context.fillText("-" + n, x0 + 5, y0 + k);
+	context.stroke();
+	context.closePath();
+	k = k/step;
+}
+ 
+	// подписываем оси
+	
+context.beginPath();
+context.fillStyle = "#000000";
+context.font = "bold 12px sans-serif";
+context.fillText("x", width_global - 10, axes.y0 - 5);
+context.fillText("y", axes.x0 + 10, 10);
+context.closePath();
+
+
+}
+
+function drawGraph (context, axes, color, thick, xpos) {
+	
+	// задаём шаг, переменные для абсциссы и для ординаты при отрисовке функции, точку начала координат и коэффициент масштабирования
+	
+var x, y, dx = 0.07, x0 = axes.x0, y0 = axes.y0, scale = axes.scale;
+var end = Math.round((context.canvas.width - x0)/dx);
+var start = axes.doNegativeX ? Math.round(-x0/dx) : 0;
+
+	// рисуем график функции
+	
+context.beginPath();
+context.lineWidth = thick;
+context.strokeStyle = color;
+context.setLineDash([2, 0]);
+
+for (var i = start + 30; i <= end - 30; i++) {
+	x = dx*i; y = scale*funcValue(x/scale);
+	if (i == start) {
+		context.moveTo(x0 + x, y0 - y);
+	} else {
+		context.lineTo(x0 + x, y0 - y);
+	}
+}
+
+context.stroke();
+context.closePath();
+
+	// отрисовка в цикле тех нулей функции (по аналитической формуле), которые вне эпсилон-окрестности начала координат, эпсилон из масштаба берётся
+	
+var n = 1;
+var radius = 3; // для отрисовки кругов
+var root_1 = 1/(2*n*Math.PI);
+var root_2 = 1/((2*n + 1)*Math.PI);
+var area = 0.009; // насколько близко к нулю прекращается построение точек
+if (scale_mult > 10*Math.pow(2, 5)) {
+	area = width_global/Math.pow(10,6);
+}
+
+while (Math.abs(root_1*scale*scale_mult) > scale_mult*area && Math.abs(root_1*scale) < width_global) {
+	context.beginPath();
+	context.fillStyle = "rgb(244, 122, 0)";
+	context.arc(root_1*scale*scale_mult + x0, y0, radius, 0, Math.PI*2, false);
+	context.arc(-root_1*scale*scale_mult + x0, y0, radius, 0, Math.PI*2, false);
+	context.arc(root_2*scale*scale_mult + x0, y0, radius, 0, Math.PI*2, false);
+	context.arc(-root_2*scale*scale_mult + x0, y0, radius, 0, Math.PI*2, false);
+	context.fill();
+	context.closePath();
+	n = n + 1;
+	root_1 = 1/(2*n*Math.PI);
+	root_2 = 1/((2*n + 1)*Math.PI);
+}
+
+}
+
+</script>
+
+</head>
+<body onload = "draw()" class = "control">
+<div id="wrapper">
+<div id="headerwrap">
+<div id="header">
+<table width = "100%" align = "center">
+<tr>
+<th width = "100px"><ul id="menu-bar">
+<li><a href="#">Задачи</a>
+<ul>
+<li><a href = "p14ex2_bnav.html">14.2 б</a></li>
+<li><a href = "p14ex2_cnav.html">14.2 в</a></li>
+<li><a href = "p14ex5nav.html">14.5</a></li>
+<li><a href = "p15ex15nav.html">15.15</a></li>
+<li><a href = "p15ex14nav.html">15.14</a></li>
+<li><a href = "p16ex10nav.html">16.10</a></li>
+<li><a href = "p18ex5nav.html">18.5</a></li>
+</ul>
+</li></ul> </th>
+<th><div id = "exercise"> 15.15</div><br>Для приближения нажмите 'Q', для удаления - 'W'.<br></th>
+</tr>
+</table>
+		</div>
+        </div>
+   
+        <div id="contentliquid"><div id="contentwrap">
+        <div id="content">
+        <canvas id="canvas"></canvas>
+		</div>
+        </div></div>
+        <div id="rightcolumnwrap">
+        <div id="rightcolumn">
+		</div>
+        </div>
+    </div>
+</body>
+</html>

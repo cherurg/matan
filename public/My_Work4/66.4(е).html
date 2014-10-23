@@ -1,0 +1,71 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<title>Compound areas (mid demo)</title>
+	<link rel="stylesheet" type="text/css" href="grafar_style.css" media="screen" />
+</head>
+
+<body>
+	<div id="plot_area" width="800" height="800" style="float: left">
+		<div id="plot3d" width="800" height="800" style="float: left"></div>
+		<div id="plot2d" width="800" height="800" style="float: left"></div>
+	</div>
+	<div class = "grafar_ui">
+		<h1 id="grafar_logo">grafar jr.</h1>
+		<div id="options"></div>
+	</div>
+	
+	<script type="text/javascript" src="js/loader.js"></script>
+	<script type="text/javascript">
+		var actions = function() {
+			grafar
+				.ui([
+						{type: 'select', id: 'dim', init: ['x', 'y', 'z'], bind: updateSection},
+						{type: 'label', init: ' = '},
+						{type: 'number', id: 'val', init: 0, bind: updateSection},
+						{type: 'br'},
+						{type: 'checkbox', id: 'helpers', bind: plotArea},
+						{type: 'label', init: 'Show the original shapes'}
+					], {container: 'options'})
+				.panel({container: 'plot3d', id: '3D'})
+				.panel({container: 'plot2d', id: 'section'});
+			
+			var s = ST();
+			
+			var cube = {x: [-1.05, 1.05], y: [-1.05, 1.05], z: [-1.05, 1.05], a: 1, b: 2, c: 3};
+			var conditions = ['(x^2/a^2 + y^2/b^2 + z^2/c^2)^2 < (x^2/a^2 + y^2/b^2)*z/c'],
+				system = conditions.join(' & ');
+						
+			grafar.panels['3D'].drawAxes(2);
+			grafar.panels['section'].drawAxes(2).setView2();
+			
+			grafar.get('$').resolve(cube).pin('3D');
+			grafar.get('system').set(system).setSamples(5);
+			//conditions.forEach(function(f, i) {grafar.get('condition-' + i).set(f).setStyle({col: 'grey'});});
+			grafar.get('section2d').setStyle({color: 'orangered'}).pin('section').set(system).setSamples(5);
+			grafar.get('section3d').setStyle({color: 'orangered', overlay: true}).pin('3D').set(system).setSamples(5);
+			
+			plotArea();
+			
+			function plotArea() {
+				//conditions.forEach(function(f, i) {area.get('condition-' + i).pin(grafar.UI.helpers.val? '3D': null)})
+				updateSection();
+			}
+			
+			function updateSection() {
+				var dim = grafar.UI.dim.val, 
+				    height = grafar.UI.val.val;
+					
+				var temp = {};
+				['x', 'y', 'z'].forEach(function(c) {temp[c] = cube[c]});
+				temp[['x', 'y', 'z'][dim]] = height;
+				
+				grafar.get('section2d').resolve(temp).setPost(grafar.project.pointAlong[dim]);
+				grafar.get('section3d').resolve(temp);
+			}
+		}
+		launchPlotter(actions);
+	</script>
+</body>
+</html>
